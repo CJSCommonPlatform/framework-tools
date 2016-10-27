@@ -59,7 +59,6 @@ import org.junit.runner.RunWith;
 public class EventHandlerIT {
 
     @Module
-    @Jars("deltaspike-")
     @Classes(cdi = true, value = {
 
             // replayer classes

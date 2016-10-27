@@ -43,12 +43,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>uk.gov.moj.cpp.notification</groupId>
-            <artifactId>notification-event-listener</artifactId>
-            <version>1.0.11-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.tomee</groupId>
             <artifactId>openejb-cxf-rs</artifactId>
             <scope>test</scope>
