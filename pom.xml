@@ -24,6 +24,7 @@
         <module>framework-tools-swarm</module>
         <module>framework-tools-replay</module>
         <module>external</module>
+        <module>framework-tools-event-replayer</module>
     </modules>
 
 
