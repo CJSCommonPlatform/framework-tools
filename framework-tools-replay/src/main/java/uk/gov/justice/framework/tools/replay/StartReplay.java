@@ -1,20 +1,12 @@
 package uk.gov.justice.framework.tools.replay;
 
 import static java.lang.System.currentTimeMillis;
-import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
-import static uk.gov.justice.services.core.annotation.ServiceComponentLocation.LOCAL;
 
-import uk.gov.justice.services.core.annotation.Component;
-import uk.gov.justice.services.core.annotation.ServiceComponentLocation;
-import uk.gov.justice.services.core.dispatcher.Dispatcher;
-import uk.gov.justice.services.core.dispatcher.DispatcherCache;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.JdbcEventRepository;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.Deque;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Future;
 import java.util.stream.Stream;
 
@@ -49,9 +41,7 @@ public class StartReplay {
         LOGGER.info("-------------- Replay Event Streams -------------!");
 
         try (final Stream<Stream<JsonEnvelope>> streamOfEventStreams = jdbcEventRepository.getStreamOfAllEventStreams()) {
-            streamOfEventStreams.forEach(s -> {
-                dispatchResults.add(asyncStreamDispatcher.dispatch(s));
-            });
+            streamOfEventStreams.forEach(s -> dispatchResults.add(asyncStreamDispatcher.dispatch(s)));
             started = true;
 
             while (!finished()) {
@@ -64,12 +54,7 @@ public class StartReplay {
 
 
     boolean finished() {
-        final Iterator<Future<Void>> iterator = dispatchResults.iterator();
-        while (iterator.hasNext()) {
-            if (iterator.next().isDone()) {
-                iterator.remove();
-            }
-        }
-        return started && !dispatchResults.stream().filter(f -> !f.isDone()).findAny().isPresent();
+        dispatchResults.removeIf(Future::isDone);
+        return started && dispatchResults.stream().allMatch(Future::isDone);
     }
 }

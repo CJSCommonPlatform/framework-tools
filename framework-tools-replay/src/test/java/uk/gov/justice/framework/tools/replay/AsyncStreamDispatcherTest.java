@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 import static uk.gov.justice.services.messaging.DefaultJsonEnvelope.envelope;
 import static uk.gov.justice.services.messaging.JsonObjectMetadata.metadataWithDefaults;
+import static uk.gov.justice.services.messaging.JsonObjectMetadata.metadataWithRandomUUID;
 
 import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamStatus;
 import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamStatusJdbcRepository;
@@ -68,7 +69,7 @@ public class AsyncStreamDispatcherTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowExceptionIfNoStreamIdInTheEnvelope() {
 
-        asyncStreamDispatcher.dispatch(Stream.of(envelope().with(metadataWithDefaults().withVersion(1L)).build()));
+        asyncStreamDispatcher.dispatch(Stream.of(envelope().with(metadataWithRandomUUID("dummyName").withVersion(1L)).build()));
 
     }
 
