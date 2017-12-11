@@ -9,7 +9,7 @@
         <version>2.1.0-SNAPSHOT</version>
     </parent>
 
-    <!--<packaging>war</packaging>-->
+    <packaging>war</packaging>
     <artifactId>framework-tools-replay</artifactId>
 
     <modelVersion>4.0.0</modelVersion>
