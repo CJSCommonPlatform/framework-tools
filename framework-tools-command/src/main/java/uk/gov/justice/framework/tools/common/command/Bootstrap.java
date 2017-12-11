@@ -26,12 +26,23 @@ public class Bootstrap {
     }
 
     private void setup(final String[] args) {
-        final Reflections reflections = new Reflections("uk.gov.justice.framework.tools");
-        final Set<Class<? extends ShellCommand>> subTypes = reflections.getSubTypesOf(ShellCommand.class);
 
-        subTypes.stream()
-                .filter(this::commandClassIsNotAbstract)
-                .forEach(this::createInstanceAndAddToJCommander);
+
+        try {
+            Class clazz = Class.forName("uk.gov.justice.framework.tools.replay.Replay");
+
+            createInstanceAndAddToJCommander(clazz);
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+//        final Reflections reflections = new Reflections("uk.gov.justice.framework.tools");
+//        final Set<Class<? extends ShellCommand>> subTypes = reflections.getSubTypesOf(ShellCommand.class);
+//
+//        subTypes.stream()
+//                .filter(this::commandClassIsNotAbstract)
+//                .forEach(this::createInstanceAndAddToJCommander);
 
         commander.parse(args);
 

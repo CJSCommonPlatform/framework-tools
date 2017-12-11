@@ -16,7 +16,7 @@
 
     <properties>
         <framework.version>2.2.1</framework.version>
-        <wildfly.swarm.version>2016.10.0</wildfly.swarm.version>
+        <wildfly.swarm.version>2017.11.0</wildfly.swarm.version>
         <test.utils.core.version>1.15.0</test.utils.core.version>
         <cpp.repo.name>framework-tools</cpp.repo.name>
         <uk.gov.justice.utils.version>1.5.0</uk.gov.justice.utils.version>
@@ -30,6 +30,7 @@
     <modules>
         <module>framework-tools-command</module>
         <module>framework-tools-replay</module>
+        <module>framework-tools-fraction</module>
         <module>framework-tools-test</module>
     </modules>
 
