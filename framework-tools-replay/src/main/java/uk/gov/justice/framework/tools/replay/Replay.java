@@ -33,28 +33,15 @@ public class Replay implements ShellCommand {
                     .stop();
             System.exit(0);
         } catch (Exception e) {
+
             LOGGER.error("Failed to start Wildfly Swarm and deploy War file", e);
         }
     }
 
     private WARArchive buildDeploymentArtifact() throws Exception {
-        final WebArchive webArchive = createFromZipFile(WebArchive.class, library.toFile());
-
-        final FrameworkLibraries frameworkLibraries = new FrameworkLibraries(
-                "uk.gov.justice.services:event-repository-jdbc",
-                "uk.gov.justice.services:framework-api-core",
-                "uk.gov.justice.services:core",
-                "uk.gov.justice.services:persistence-jdbc",
-                "uk.gov.justice.services:event-buffer-core");
-
-        final WebArchive excludeGeneratedApiClasses = create(WebArchive.class, "ExcludeGeneratedApiClasses")
-                .merge(webArchive, frameworkLibraries.exclusionFilter());
-
+        LOGGER.error("-------------After  excludeGeneratedApiClasses-----------------------");
         try {
             return create(WARArchive.class, "replay-tool.war")
-                    .addAsLibraries(artifact("org.glassfish:javax.json"))
-                    .addAsLibraries(frameworkLibraries.shrinkWrapArchives())
-                    .merge(excludeGeneratedApiClasses)
                     .addClass(AsyncStreamDispatcher.class)
                     .addClass(TransactionalEnvelopeDispatcher.class)
                     .addClass(StartReplay.class)

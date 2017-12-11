@@ -9,6 +9,7 @@
         <version>2.1.0-SNAPSHOT</version>
     </parent>
 
+    <!--<packaging>war</packaging>-->
     <artifactId>framework-tools-replay</artifactId>
 
     <modelVersion>4.0.0</modelVersion>
@@ -22,6 +23,13 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+            <dependency>
+                <groupId>uk.gov.justice</groupId>
+                <artifactId>maven-common-bom</artifactId>
+                <version>1.17.0</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -32,27 +40,6 @@
             <groupId>uk.gov.justice</groupId>
             <artifactId>framework-tools-command</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.justice.services</groupId>
-            <artifactId>core</artifactId>
-            <version>${framework.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.justice.services</groupId>
-            <artifactId>event-repository-jdbc</artifactId>
-            <version>${framework.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>uk.gov.justice.services</groupId>
-                    <artifactId>persistance-jdbc</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.justice.services</groupId>
-            <artifactId>event-buffer-core</artifactId>
-            <version>${framework.version}</version>
         </dependency>
 
         <!--Wildfly Swarm-->
@@ -103,11 +90,7 @@
             <artifactId>logging</artifactId>
         </dependency>
 
-        <!--External-->
-        <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>javax.json</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
@@ -167,7 +150,7 @@
                 <artifactId>wildfly-swarm-plugin</artifactId>
                 <version>${wildfly.swarm.version}</version>
                 <configuration>
-                    <mainClass>uk.gov.justice.framework.tools.common.command.Bootstrap</mainClass>
+                    <!--<mainClass>uk.gov.justice.framework.tools.common.command.Bootstrap</mainClass>-->
                 </configuration>
                 <executions>
                     <execution>

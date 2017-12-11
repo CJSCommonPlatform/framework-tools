@@ -1,20 +1,19 @@
 package uk.gov.justice.framework.tools.fraction.runtime;
 
+import static org.jboss.shrinkwrap.api.ShrinkWrap.create;
 import static org.jboss.shrinkwrap.api.ShrinkWrap.createFromZipFile;
+import static org.wildfly.swarm.Swarm.artifact;
 
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.inject.Inject;
 
 import org.jboss.shrinkwrap.api.Archive;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.wildfly.swarm.spi.api.DeploymentProcessor;
-import org.wildfly.swarm.spi.api.JARArchive;
-import org.wildfly.swarm.spi.runtime.annotations.DeploymentScoped;
 import org.wildfly.swarm.spi.runtime.annotations.ConfigurationValue;
+import org.wildfly.swarm.spi.runtime.annotations.DeploymentScoped;
 import org.wildfly.swarm.undertow.WARArchive;
 
 @DeploymentScoped
@@ -24,9 +23,15 @@ public class TransformationArchivePreparer implements DeploymentProcessor {
 
     public static final String TRANSFORMATION_WAR_PROPERTY_NAME = "transformation.web.archive.name";
 
+    public static final String VIEW_STORE_LISTENER_PROPERTY_NAME = "view.store.archive.name";
+
     //private static final Logger LOGGER = LoggerFactory.getLogger(TransformationArchivePreparer.class);
 
     private final Archive<?> archive;
+
+    @Inject
+    @ConfigurationValue(VIEW_STORE_LISTENER_PROPERTY_NAME)
+    private String library;
 
     @Inject
     @ConfigurationValue(TRANSFORMATION_JAR_PROPERTY_NAME)
@@ -47,35 +52,35 @@ public class TransformationArchivePreparer implements DeploymentProcessor {
     }
 
 
-
     @Override
     public void process() throws Exception {
-//        LOGGER.info("process() [archive={}]", archive.getClass().getName());
 
-        if (transformationWarName != null && extraJarName != null) {
+        if (transformationWarName.equals(archive.getName()) && transformationWarName != null) {
+            System.err.println("-------------------TransformationArchivePreparer.process()");
 
-            if (transformationWarName.equals(archive.getName())) {
-//                LOGGER.info("process() [archive={}], adding transformation lib", archive.getClass().getName());
+            System.err.println("-------------Before WebArchive-----------------------");
+            final WebArchive webArchive = createFromZipFile(WebArchive.class, Paths.get(library).toFile());
 
-                WARArchive war = archive.as(WARArchive.class);
-                war.addAsLibrary(loadTransformationJar());
-            }
+            System.err.println("-------------Before FrameworkLibraries-----------------------");
+            final FrameworkLibraries frameworkLibraries = new FrameworkLibraries(
+                    "uk.gov.justice.services:event-repository-jdbc:2.2.1",
+                    "uk.gov.justice.services:framework-api-core:2.2.1",
+                    "uk.gov.justice.services:core:2.2.1",
+                    "uk.gov.justice.services:persistence-jdbc:2.2.1",
+                    "uk.gov.justice.services:event-buffer-core:2.2.1");
+            System.err.println("-------------After FrameworkLibraries-----------------------");
 
+            final WebArchive excludeGeneratedApiClasses = create(WebArchive.class, "ExcludeGeneratedApiClasses")
+                    .merge(webArchive, frameworkLibraries.exclusionFilter());
+            System.err.println("-------------After  excludeGeneratedApiClasses-----------------------");
+
+            WARArchive war = archive.as(WARArchive.class);
+
+            war.addAsLibraries(artifact("org.glassfish:javax.json:1.0.2"))
+                    .addAsLibraries(frameworkLibraries.shrinkWrapArchives())
+                    .merge(excludeGeneratedApiClasses);
         }
-        else {
-//            LOGGER.info("Not processing as one or both of {} and {} System properties are not set",
-//                         TRANSFORMATION_WAR_PROPERTY_NAME, TRANSFORMATION_JAR_PROPERTY_NAME);
-        }
-
     }
 
-
-    private JARArchive loadTransformationJar() {
-//        LOGGER.info("loadTransformationJar() loading [{}]",extraJarName);
-        JARArchive lib = createFromZipFile(JARArchive.class, new File(extraJarName));
-
-        return lib;
-
-    }
 
 }
