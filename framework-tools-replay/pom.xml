@@ -106,6 +106,11 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
+        <!--External-->
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.json</artifactId>
+        </dependency>
 
         <!--Test-->
         <dependency>
@@ -149,9 +154,6 @@
                 <groupId>org.wildfly.swarm</groupId>
                 <artifactId>wildfly-swarm-plugin</artifactId>
                 <version>${wildfly.swarm.version}</version>
-                <configuration>
-                    <!--<mainClass>uk.gov.justice.framework.tools.common.command.Bootstrap</mainClass>-->
-                </configuration>
                 <executions>
                     <execution>
                         <goals>

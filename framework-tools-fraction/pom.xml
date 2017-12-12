@@ -93,10 +93,10 @@
             <version>1.0.6.Final</version>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.wildfly.swarm</groupId>-->
-            <!--<artifactId>logging</artifactId>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.wildfly.swarm</groupId>
+            <artifactId>logging</artifactId>
+        </dependency>
 
         <!--<dependency>-->
         <!--<groupId>log4j</groupId>-->
@@ -108,17 +108,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.wildfly.swarm</groupId>
             <artifactId>undertow</artifactId>
         </dependency>
-
-        <!--External-->
-        <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>javax.json</artifactId>
-        </dependency>
-
     </dependencies>
 
 

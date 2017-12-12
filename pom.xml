@@ -28,7 +28,6 @@
     </properties>
 
     <modules>
-        <module>framework-tools-command</module>
         <module>framework-tools-replay</module>
         <module>framework-tools-fraction</module>
         <module>framework-tools-test</module>
