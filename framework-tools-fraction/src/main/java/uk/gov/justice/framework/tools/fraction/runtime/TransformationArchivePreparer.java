@@ -19,9 +19,9 @@ import org.wildfly.swarm.undertow.WARArchive;
 public class TransformationArchivePreparer implements DeploymentProcessor {
 
 
-    public static final String TRANSFORMATION_WAR_PROPERTY_NAME = "transformation.web.archive.name";
+    private static final String TRANSFORMATION_WAR_PROPERTY_NAME = "transformation.web.archive.name";
 
-    public static final String VIEW_STORE_LISTENER_PROPERTY_NAME = "view.store.archive.name";
+    private static final String VIEW_STORE_LISTENER_PROPERTY_NAME = "view.store.archive.name";
 
     private final Archive<?> archive;
 
@@ -34,7 +34,7 @@ public class TransformationArchivePreparer implements DeploymentProcessor {
     private String transformationWarName;
 
     @Inject
-    public TransformationArchivePreparer(Archive archive) {
+    public TransformationArchivePreparer(final Archive archive) {
         this.archive = archive;
     }
 
@@ -48,7 +48,7 @@ public class TransformationArchivePreparer implements DeploymentProcessor {
             final FrameworkLibraries frameworkLibraries = new FrameworkLibraries(
                     "uk.gov.justice.services:event-repository-jdbc",
                     "uk.gov.justice.services:framework-api-core",
-                    "uk.gov.justice.services:core:2.2.1",
+                    "uk.gov.justice.services:core",
                     "uk.gov.justice.services:persistence-jdbc",
                     "uk.gov.justice.services:event-buffer-core");
 
@@ -56,11 +56,9 @@ public class TransformationArchivePreparer implements DeploymentProcessor {
             final WebArchive excludeGeneratedApiClasses = create(WebArchive.class, "ExcludeGeneratedApiClasses")
                     .merge(webArchive, frameworkLibraries.exclusionFilter());
 
-            WARArchive war = archive.as(WARArchive.class);
+            final WARArchive war = archive.as(WARArchive.class);
 
             war.merge(excludeGeneratedApiClasses);
         }
     }
-
-
 }
