@@ -19,9 +19,9 @@ import org.wildfly.swarm.undertow.WARArchive;
 public class TransformationArchivePreparer implements DeploymentProcessor {
 
 
-    public static final String TRANSFORMATION_WAR_PROPERTY_NAME = "transformation.web.archive.name";//
+    public static final String TRANSFORMATION_WAR_PROPERTY_NAME = "transformation.web.archive.name";
 
-    public static final String VIEW_STORE_LISTENER_PROPERTY_NAME = "view.store.archive.name";//
+    public static final String VIEW_STORE_LISTENER_PROPERTY_NAME = "view.store.archive.name";
 
     private final Archive<?> archive;
 
