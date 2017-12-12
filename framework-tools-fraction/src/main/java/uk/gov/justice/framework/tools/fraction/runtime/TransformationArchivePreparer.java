@@ -9,8 +9,6 @@ import javax.inject.Inject;
 
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wildfly.swarm.spi.api.DeploymentProcessor;
 import org.wildfly.swarm.spi.runtime.annotations.ConfigurationValue;
 import org.wildfly.swarm.spi.runtime.annotations.DeploymentScoped;
@@ -24,8 +22,6 @@ public class TransformationArchivePreparer implements DeploymentProcessor {
     public static final String TRANSFORMATION_WAR_PROPERTY_NAME = "transformation.web.archive.name";//
 
     public static final String VIEW_STORE_LISTENER_PROPERTY_NAME = "view.store.archive.name";//
-
-    //private static final Logger LOGGER = LoggerFactory.getLogger(TransformationArchivePreparer.class);
 
     private final Archive<?> archive;
 
