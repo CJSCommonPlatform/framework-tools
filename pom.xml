@@ -20,6 +20,8 @@
         <test.utils.core.version>1.15.0</test.utils.core.version>
         <cpp.repo.name>framework-tools</cpp.repo.name>
         <uk.gov.justice.utils.version>1.5.0</uk.gov.justice.utils.version>
+        <version.swarm.fraction-plugin>77</version.swarm.fraction-plugin>
+
         <!--
                 note h2 version is because swarm has its own version of h2 which we must use
                 for the integration tests to work as h2 version inter-compatibility is volatile

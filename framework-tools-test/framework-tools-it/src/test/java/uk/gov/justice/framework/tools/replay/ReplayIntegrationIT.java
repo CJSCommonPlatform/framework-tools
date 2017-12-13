@@ -107,11 +107,11 @@ public class ReplayIntegrationIT {
                                final String replayJarLocation,
                                final String standaloneDSLocation,
                                final String listenerLocation) {
-        return String.format("java -jar %s %s replay -c %s -l %s",
+        return String.format("java %s -Devent.listener.war=%s -jar %s -c %s",
                 debugString,
+                listenerLocation,
                 replayJarLocation,
-                standaloneDSLocation,
-                listenerLocation);
+                standaloneDSLocation);
     }
 
     private static DataSource initDatabase(final String dbUrlPropertyName,

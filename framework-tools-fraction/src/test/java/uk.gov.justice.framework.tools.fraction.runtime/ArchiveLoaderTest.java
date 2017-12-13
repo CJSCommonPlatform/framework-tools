@@ -12,26 +12,23 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TransformationArchivePreparerTest {
+public class ArchiveLoaderTest {
     @Mock
     private Archive archive;
 
     @InjectMocks
-    private TransformationArchivePreparer transformationArchivePreparer;
+    private ArchiveLoader archiveLoader;
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionWhenTransformationWarNameIsNull() {
-        transformationArchivePreparer.process();
-    }
+    //TODO: Positive tests
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowExceptionWhenArchiveNameIsInvalid() throws Exception {
-        final Field privateField = transformationArchivePreparer.getClass().getDeclaredField("transformationWarName");
+        final Field privateField = archiveLoader.getClass().getDeclaredField("library");
         privateField.setAccessible(true);
-        privateField.set(transformationArchivePreparer, "ValidArchiveName");
+        privateField.set(archiveLoader, "ValidArchiveName");
 
         when(archive.getName()).thenReturn("InvalidArchiveName");
 
-        transformationArchivePreparer.process();
+        archiveLoader.process();
     }
 }

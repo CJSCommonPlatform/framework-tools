@@ -16,25 +16,22 @@ import org.wildfly.swarm.undertow.WARArchive;
 
 
 @DeploymentScoped
-public class TransformationArchivePreparer implements DeploymentProcessor {
+public class ArchiveLoader implements DeploymentProcessor {
 
 
-    private static final String TRANSFORMATION_WAR_PROPERTY_NAME = "transformation.web.archive.name";
-
-    private static final String VIEW_STORE_LISTENER_PROPERTY_NAME = "view.store.archive.name";
+    private static final String EVENT_LISTENER_WAR = "event.listener.war";
 
     private final Archive<?> archive;
 
+    //Add multiple additional archives to the CMD, including dependencies
+    //jar files need to be added in as CMD arguments
+
     @Inject
-    @ConfigurationValue(VIEW_STORE_LISTENER_PROPERTY_NAME)
+    @ConfigurationValue(EVENT_LISTENER_WAR)
     private String library;
 
     @Inject
-    @ConfigurationValue(TRANSFORMATION_WAR_PROPERTY_NAME)
-    private String transformationWarName;
-
-    @Inject
-    public TransformationArchivePreparer(final Archive archive) {
+    public ArchiveLoader(final Archive archive) {
         this.archive = archive;
     }
 
@@ -42,7 +39,6 @@ public class TransformationArchivePreparer implements DeploymentProcessor {
     @Override
     public void process() throws IllegalArgumentException {
 
-        if (transformationWarName != null && transformationWarName.equals(archive.getName())) {
             final WebArchive webArchive = createFromZipFile(WebArchive.class, Paths.get(library).toFile());
 
             final FrameworkLibraries frameworkLibraries = new FrameworkLibraries(
@@ -59,8 +55,5 @@ public class TransformationArchivePreparer implements DeploymentProcessor {
             final WARArchive war = archive.as(WARArchive.class);
 
             war.merge(excludeGeneratedApiClasses);
-        }else {
-            throw new IllegalArgumentException(String.format("You must enter valid transformation.web.archive.name parameter: %s", transformationWarName));
-        }
     }
 }

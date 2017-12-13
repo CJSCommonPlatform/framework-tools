@@ -65,6 +65,10 @@
             <artifactId>jpa</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wildfly.swarm</groupId>
             <artifactId>datasources</artifactId>
         </dependency>
@@ -106,7 +110,7 @@
         <dependency>
             <groupId>uk.gov.justice</groupId>
             <artifactId>framework-tools-fraction</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <!--External-->
