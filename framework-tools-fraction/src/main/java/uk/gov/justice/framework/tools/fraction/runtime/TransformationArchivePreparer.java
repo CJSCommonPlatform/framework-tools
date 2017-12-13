@@ -40,9 +40,9 @@ public class TransformationArchivePreparer implements DeploymentProcessor {
 
 
     @Override
-    public void process() throws Exception {
+    public void process() throws IllegalArgumentException {
 
-        if (transformationWarName.equals(archive.getName()) && transformationWarName != null) {
+        if (transformationWarName != null && transformationWarName.equals(archive.getName())) {
             final WebArchive webArchive = createFromZipFile(WebArchive.class, Paths.get(library).toFile());
 
             final FrameworkLibraries frameworkLibraries = new FrameworkLibraries(
@@ -59,6 +59,8 @@ public class TransformationArchivePreparer implements DeploymentProcessor {
             final WARArchive war = archive.as(WARArchive.class);
 
             war.merge(excludeGeneratedApiClasses);
+        }else {
+            throw new IllegalArgumentException(String.format("You must enter valid transformation.web.archive.name parameter: %s", transformationWarName));
         }
     }
 }

@@ -15,7 +15,7 @@ public class FrameworkLibrariesTest {
     @Test
     public void shouldReturnShrinkwrapArchives() throws Exception {
         FrameworkLibraries frameworkLibraries = new FrameworkLibraries(
-                "uk.gov.justice.services:event-repository-jdbc",
+                "uk.gov.justice.services:event-repository-jdbc:",
                 "uk.gov.justice.services:framework-api-core");
 
         Archive<?>[] archives = frameworkLibraries.shrinkWrapArchives();
