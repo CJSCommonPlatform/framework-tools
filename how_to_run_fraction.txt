@@ -1,0 +1,40 @@
+READ.ME
+
+1. Create a working directory to run the tool e.g. /dev/replay
+2. Build project with mvn clean package
+3. Copy resulting -swarm.jar file to the working directory tgether with:
+	i.	relevant event listener jar, e.g. notification-event-listener-1.0.37-SNAPSHOT.war
+	ii.	standalone.ds.xml from the replay project (this will need changing slightly to reflect the context being processed)
+	iii.	relevant liquibase jars
+	(see current replay tool confluence page for further info including how to run the liquibase jars)
+	
+4.	If required, to add data to the notification eventstore connect with PGAdmin or similar and execute the following SQL code block in a SQL Window:
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+insert into event_log values(uuid_generate_v4(), '8d42d847-9417-4be4-a720-5387cf4e2254', 1, 'NAME', '{"created":"2017-12-12T10:15:30Z","ownerId":"1552993a-832d-40bb-a9a0-31aadd6185f8","subscriptionId":"95bf8e0b-16f5-432e-bba5-955cebd7f281","filter":{"type":"FIELD","name":"userId","value":"1552993a-832d-40bb-a9a0-31aadd6185f8","operation":"EQUAL"}}',
+'{"stream":{"id":"8d42d847-9417-4be4-a720-5387cf4e2254", "version":99},"name":"notification.subscribed","context":{"user":"acbdf1b0-035e-42eb-90b4-615d0ff7e98f"},"id":"c15b6a7a-8664-41da-a84c-62e179c7cd4d"}', current_timestamp);
+insert into event_log values(uuid_generate_v4(), '8d42d847-9417-4be4-a720-5387cf4e2254', 2, 'NAME', '{"created":"2017-12-12T10:15:30Z","ownerId":"1552993a-832d-40bb-a9a0-31aadd6185f8","subscriptionId":"95bf8e0b-16f5-432e-bba5-955cebd7f282","filter":{"type":"FIELD","name":"userId","value":"1552993a-832d-40bb-a9a0-31aadd6185f8","operation":"EQUAL"}}',
+'{"stream":{"id":"8d42d847-9417-4be4-a720-5387cf4e2254", "version":99},"name":"notification.subscribed","context":{"user":"acbdf1b0-035e-42eb-90b4-615d0ff7e98f"},"id":"c15b6a7a-8664-41da-a84c-62e179c7cd4d"}', current_timestamp);
+insert into event_log values(uuid_generate_v4(), '8d42d847-9417-4be4-a720-5387cf4e2254', 3, 'NAME', '{"created":"2017-12-12T10:15:30Z","ownerId":"1552993a-832d-40bb-a9a0-31aadd6185f8","subscriptionId":"95bf8e0b-16f5-432e-bba5-955cebd7f283","filter":{"type":"FIELD","name":"userId","value":"1552993a-832d-40bb-a9a0-31aadd6185f8","operation":"EQUAL"}}',
+'{"stream":{"id":"8d42d847-9417-4be4-a720-5387cf4e2254", "version":99},"name":"notification.subscribed","context":{"user":"acbdf1b0-035e-42eb-90b4-615d0ff7e98f"},"id":"c15b6a7a-8664-41da-a84c-62e179c7cd4d"}', current_timestamp);
+insert into event_log values(uuid_generate_v4(), '8d42d847-9417-4be4-a720-5387cf4e2254', 4, 'NAME', '{"created":"2017-12-12T10:15:30Z","ownerId":"1552993a-832d-40bb-a9a0-31aadd6185f8","subscriptionId":"95bf8e0b-16f5-432e-bba5-955cebd7f284","filter":{"type":"FIELD","name":"userId","value":"1552993a-832d-40bb-a9a0-31aadd6185f8","operation":"EQUAL"}}',
+'{"stream":{"id":"8d42d847-9417-4be4-a720-5387cf4e2254", "version":99},"name":"notification.subscribed","context":{"user":"acbdf1b0-035e-42eb-90b4-615d0ff7e98f"},"id":"c15b6a7a-8664-41da-a84c-62e179c7cd4d"}', current_timestamp);
+insert into event_log values(uuid_generate_v4(), '8d42d847-9417-4be4-a720-5387cf4e2254', 5, 'NAME', '{"created":"2017-12-12T10:15:30Z","ownerId":"1552993a-832d-40bb-a9a0-31aadd6185f8","subscriptionId":"95bf8e0b-16f5-432e-bba5-955cebd7f285","filter":{"type":"FIELD","name":"userId","value":"1552993a-832d-40bb-a9a0-31aadd6185f8","operation":"EQUAL"}}',
+'{"stream":{"id":"8d42d847-9417-4be4-a720-5387cf4e2254", "version":99},"name":"notification.subscribed","context":{"user":"acbdf1b0-035e-42eb-90b4-615d0ff7e98f"},"id":"c15b6a7a-8664-41da-a84c-62e179c7cd4d"}', current_timestamp);
+
+insert into event_log values(uuid_generate_v4(), 'f0241fbb-2844-4c1d-812a-b16003dabd6a', 1, 'NAME', '{"created":"2017-12-12T10:15:30Z","ownerId":"1552993a-832d-40bb-a9a0-31aadd6185f8","subscriptionId":"95bf8e0b-16f5-432e-bba5-955cebd7f286","filter":{"type":"FIELD","name":"userId","value":"1552993a-832d-40bb-a9a0-31aadd6185f8","operation":"EQUAL"}}',
+'{"stream":{"id":"f0241fbb-2844-4c1d-812a-b16003dabd6a", "version":99},"name":"notification.subscribed","context":{"user":"acbdf1b0-035e-42eb-90b4-615d0ff7e98f"},"id":"c15b6a7a-8664-41da-a84c-62e179c7cd4d"}', current_timestamp);
+insert into event_log values(uuid_generate_v4(), 'f0241fbb-2844-4c1d-812a-b16003dabd6a', 2, 'NAME', '{"created":"2017-12-12T10:15:30Z","ownerId":"1552993a-832d-40bb-a9a0-31aadd6185f8","subscriptionId":"95bf8e0b-16f5-432e-bba5-955cebd7f287","filter":{"type":"FIELD","name":"userId","value":"1552993a-832d-40bb-a9a0-31aadd6185f8","operation":"EQUAL"}}',
+'{"stream":{"id":"f0241fbb-2844-4c1d-812a-b16003dabd6a", "version":99},"name":"notification.subscribed","context":{"user":"acbdf1b0-035e-42eb-90b4-615d0ff7e98f"},"id":"c15b6a7a-8664-41da-a84c-62e179c7cd4d"}', current_timestamp);
+insert into event_log values(uuid_generate_v4(), 'f0241fbb-2844-4c1d-812a-b16003dabd6a', 3, 'NAME', '{"created":"2017-12-12T10:15:30Z","ownerId":"1552993a-832d-40bb-a9a0-31aadd6185f8","subscriptionId":"95bf8e0b-16f5-432e-bba5-955cebd7f288","filter":{"type":"FIELD","name":"userId","value":"1552993a-832d-40bb-a9a0-31aadd6185f8","operation":"EQUAL"}}',
+'{"stream":{"id":"f0241fbb-2844-4c1d-812a-b16003dabd6a", "version":99},"name":"notification.subscribed","context":{"user":"acbdf1b0-035e-42eb-90b4-615d0ff7e98f"},"id":"c15b6a7a-8664-41da-a84c-62e179c7cd4d"}', current_timestamp);
+insert into event_log values(uuid_generate_v4(), 'f0241fbb-2844-4c1d-812a-b16003dabd6a', 4, 'NAME', '{"created":"2017-12-12T10:15:30Z","ownerId":"1552993a-832d-40bb-a9a0-31aadd6185f8","subscriptionId":"95bf8e0b-16f5-432e-bba5-955cebd7f289","filter":{"type":"FIELD","name":"userId","value":"1552993a-832d-40bb-a9a0-31aadd6185f8","operation":"EQUAL"}}',
+'{"stream":{"id":"f0241fbb-2844-4c1d-812a-b16003dabd6a", "version":99},"name":"notification.subscribed","context":{"user":"acbdf1b0-035e-42eb-90b4-615d0ff7e98f"},"id":"c15b6a7a-8664-41da-a84c-62e179c7cd4d"}', current_timestamp);
+insert into event_log values(uuid_generate_v4(), 'f0241fbb-2844-4c1d-812a-b16003dabd6a', 5, 'NAME', '{"created":"2017-12-12T10:15:30Z","ownerId":"1552993a-832d-40bb-a9a0-31aadd6185f8","subscriptionId":"95bf8e0b-16f5-432e-bba5-955cebd7f28a","filter":{"type":"FIELD","name":"userId","value":"1552993a-832d-40bb-a9a0-31aadd6185f8","operation":"EQUAL"}}',
+'{"stream":{"id":"f0241fbb-2844-4c1d-812a-b16003dabd6a", "version":99},"name":"notification.subscribed","context":{"user":"acbdf1b0-035e-42eb-90b4-615d0ff7e98f"},"id":"c15b6a7a-8664-41da-a84c-62e179c7cd4d"}', current_timestamp);
+
+
+5.	To run the tool open a command prompt in the working directory and enter:
+
+java -Devent.listener.war=notification-event-listener-1.0.37-SNAPSHOT.war -jar framework-tools-replay-2.1.0-SNAPSHOT-swarm.jar -c standalone-ds.xml
+
