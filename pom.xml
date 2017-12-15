@@ -26,13 +26,13 @@
                 note h2 version is because swarm has its own version of h2 which we must use
                 for the integration tests to work as h2 version inter-compatibility is volatile
         -->
-        <com.h2database.version>1.4.187</com.h2database.version>
+        <com.h2database.version>1.4.187</com.h2database.version><!--1.4.187-->
     </properties>
 
     <modules>
         <module>framework-tools-replay</module>
         <module>framework-tools-fraction</module>
-        <module>framework-tools-test</module>
+        <!--<module>framework-tools-test</module>-->
     </modules>
 
     <scm>
