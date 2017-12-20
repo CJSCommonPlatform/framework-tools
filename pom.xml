@@ -32,7 +32,7 @@
     <modules>
         <module>framework-tools-replay</module>
         <module>framework-tools-fraction</module>
-        <!--<module>framework-tools-test</module>-->
+        <module>framework-tools-test</module>
     </modules>
 
     <scm>

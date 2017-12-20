@@ -28,5 +28,26 @@
             <artifactId>javaee-api</artifactId>
             <scope>provided</scope>
         </dependency>
-    </dependencies>
+     </dependencies>
+
+    <build>
+        <plugins>
+             <plugin>
+                 <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-war-plugin</artifactId>
+                 <configuration>
+                     <webResources>
+                         <resource>
+                             <directory>${project.build.outputDirectory}</directory>
+                             <targetPath>WEB-INF</targetPath>
+                             <filtering>true</filtering>
+                             <includes>
+                                 <include>ejb-jar.xml</include>
+                             </includes>
+                         </resource>
+                     </webResources>
+                 </configuration>
+             </plugin>
+        </plugins>
+    </build>
 </project>

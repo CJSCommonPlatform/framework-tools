@@ -64,11 +64,11 @@
             <groupId>org.wildfly.swarm</groupId>
             <artifactId>jpa</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>com.h2database</groupId>-->
-            <!--<artifactId>h2</artifactId>-->
-            <!--<version>1.4.187</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${com.h2database.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.wildfly.swarm</groupId>
             <artifactId>datasources</artifactId>
