@@ -14,12 +14,17 @@ import uk.gov.justice.services.messaging.Metadata;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.ZonedDateTime;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -36,39 +41,82 @@ public class ReplayIntegrationIT {
 
     private static final TestProperties TEST_PROPERTIES = new TestProperties("test.properties");
 
+    private static final int EVENT_COUNT = 5;
+
     private static final UUID STREAM_ID = randomUUID();
 
     private static TestEventLogRepository EVENT_LOG_REPOSITORY;
 
+    private static DataSource viewStoreDataSource;
 
     @Before
     public void setUpDB() throws Exception {
         EVENT_LOG_REPOSITORY = new TestEventLogRepository(initEventStoreDb());
+        viewStoreDataSource = initViewStoreDb();
     }
 
     @Test
     public void runReplayTool() throws Exception {
         insertEventLogData();
-        assertTrue(runCommand(createCommandToExecuteReplay()));
+        runCommand(createCommandToExecuteReplay());
+        assertTrue(viewStoreEventsPresent());
     }
+
+    public boolean viewStoreEventsPresent() throws SQLException {
+
+        boolean rc = false;
+
+        try (final Connection connection = viewStoreDataSource.getConnection();
+             final PreparedStatement ps = connection.prepareStatement("SELECT * FROM test")) {
+
+            int count = 0;
+            final ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                count++;
+            }
+
+            if (count == EVENT_COUNT) {
+                rc = true;
+            }
+        }
+
+        return rc;
+    }
+
 
     @After
     public void tearDown() throws SQLException {
+
         final PreparedStatement preparedStatement = EVENT_LOG_REPOSITORY.getDataSource().getConnection().prepareStatement("delete from event_log");
         preparedStatement.executeUpdate();
         EVENT_LOG_REPOSITORY.getDataSource().getConnection().close();
+
+        final PreparedStatement viewStorePreparedStatement = viewStoreDataSource.getConnection().prepareStatement("delete from test");
+        viewStorePreparedStatement.executeUpdate();
+        viewStorePreparedStatement.getConnection().close();
     }
 
     private static DataSource initEventStoreDb() throws Exception {
-        return initDatabase("db.eventstore.url", "db.eventstore.userName",
-                "db.eventstore.password", "liquibase/event-store-db-changelog.xml", "liquibase/snapshot-store-db-changelog.xml", "liquibase/event-buffer-changelog.xml");
+        return initDatabase("db.eventstore.url",
+                       "db.eventstore.userName",
+                        "db.eventstore.password",
+                        "liquibase/event-store-db-changelog.xml", "liquibase/snapshot-store-db-changelog.xml");
     }
 
-    private EventLog eventLogFrom(final String eventName) {
+    private static DataSource initViewStoreDb() throws Exception {
+        return initDatabase("db.viewstore.url",
+                "db.eventstore.userName",
+                "db.eventstore.password",
+                "liquibase/viewstore-db-changelog.xml", "liquibase/event-buffer-changelog.xml", "liquibase/snapshot-store-db-changelog.xml");
+    }
+
+    private EventLog eventLogFrom(final String eventName, final Long sequenceId) {
 
         final JsonEnvelope jsonEnvelope = envelope()
                 .with(metadataWithRandomUUID(eventName)
                         .createdAt(ZonedDateTime.now())
+                        .withVersion(sequenceId)
                         .withStreamId(STREAM_ID).withVersion(1L))
                 .withPayloadOf("test", "a string")
                 .build();
@@ -77,7 +125,6 @@ public class ReplayIntegrationIT {
         final UUID id = metadata.id();
 
         final UUID streamId = metadata.streamId().get();
-        final Long sequenceId = 1L;
         final String name = metadata.name();
         final String payload = jsonEnvelope.payloadAsJsonObject().toString();
         final ZonedDateTime createdAt = metadata.createdAt().get();
@@ -145,27 +192,67 @@ public class ReplayIntegrationIT {
         return dir.listFiles(fileFilter)[0].getAbsolutePath();
     }
 
-    public boolean runCommand(final String command) throws Exception {
+    public void runCommand(final String command) throws Exception {
 
         final Process exec = Runtime.getRuntime().exec(command);
-        final BufferedReader reader =
-                new BufferedReader(new InputStreamReader(exec.getInputStream()));
 
-        final Pattern p = Pattern.compile(".*caught a fish.*", Pattern.MULTILINE | Pattern.DOTALL);
-        boolean matches = false;
-        String line = "";
-        while ((line = reader.readLine()) != null) {
+        new Thread(() -> {
+            System.out.println("Redirecting output...");
+            try (final BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(exec.getInputStream()))) {
 
-            if (p.matcher(line).matches()) {
-                matches = true;
+                final Pattern p = Pattern.compile(".*WFSWARM99999: WildFly Swarm is Ready.*", Pattern.MULTILINE | Pattern.DOTALL);
+                String line = "";
+                while ((line = reader.readLine()) != null) {
+
+                    System.out.println(line);
+
+                    if (p.matcher(line).matches()) {
+                        // Fraction has run so kill server now
+                        exec.destroyForcibly();
+                        break;
+                    }
+
+                }
             }
-            System.out.println(line);
+            catch (IOException ioEx) {
+                System.out.println("IOException occurred reading process input stream");
+            }
+
+            }).start();
+
+        System.out.println("Process started, waiting for completion..");
+
+        // Give the process 60 seconds to complete and then kill it. Successful test will be
+        // determined by querying the ViewStore for associated records later. The above Thread should
+        // kill the process inside 60 seconds but wait here and handle shutdown if things take
+        // too long for some reason
+        boolean processTerminated = exec.waitFor(60L, TimeUnit.SECONDS);
+
+        if (!processTerminated) {
+            System.err.println("WildFly Swarm process failed to terminate after 60 seconds!");
+            Process terminating = exec.destroyForcibly();
+
+            processTerminated = terminating.waitFor(10L, TimeUnit.SECONDS);
+            if (!processTerminated) {
+                System.err.println("Failed to forcibly terminate WildFly Swarm process!");
+            }
+            else {
+                System.err.println("WildFly Swarm process forcibly terminated.");
+            }
         }
-        exec.destroyForcibly();
-        return matches;
+        else {
+            System.out.println("WildFly Swarm process terminated by Test.");
+        }
+
     }
 
     private void insertEventLogData() throws SQLException, InvalidSequenceIdException {
-        EVENT_LOG_REPOSITORY.insert(eventLogFrom("framework.example-test"));
+        Long sequenceId = 0L;
+        EVENT_LOG_REPOSITORY.insert(eventLogFrom("framework.example-test", ++sequenceId));
+        EVENT_LOG_REPOSITORY.insert(eventLogFrom("framework.example-test", ++sequenceId));
+        EVENT_LOG_REPOSITORY.insert(eventLogFrom("framework.example-test", ++sequenceId));
+        EVENT_LOG_REPOSITORY.insert(eventLogFrom("framework.example-test", ++sequenceId));
+        EVENT_LOG_REPOSITORY.insert(eventLogFrom("framework.example-test", ++sequenceId));
     }
 }

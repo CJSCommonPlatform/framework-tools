@@ -15,6 +15,7 @@
 
     <properties>
         <cpp.service-component>EVENT_LISTENER</cpp.service-component>
+        <deltaspike.version>1.6.1</deltaspike.version>
     </properties>
 
     <dependencies>
@@ -28,7 +29,23 @@
             <artifactId>javaee-api</artifactId>
             <scope>provided</scope>
         </dependency>
-     </dependencies>
+        <dependency>
+            <groupId>uk.gov.justice.services</groupId>
+            <artifactId>persistence-deltaspike</artifactId>
+            <version>2.2.1</version>
+         </dependency>
+
+        <dependency>
+            <groupId>org.apache.deltaspike.core</groupId>
+            <artifactId>deltaspike-core-api</artifactId>
+            <version>${deltaspike.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.deltaspike.modules</groupId>
+            <artifactId>deltaspike-data-module-api</artifactId>
+            <version>${deltaspike.version}</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>

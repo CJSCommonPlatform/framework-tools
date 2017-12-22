@@ -113,7 +113,7 @@
                 <datasource jndi-name="java:/DS.replay"
                             pool-name="DS.replay-pool" enabled="true"
                             use-java-context="true">
-                    <connection-url>jdbc:h2:tcp://localhost:8092/mem:eventstore;MVCC=true</connection-url>
+                    <connection-url>jdbc:h2:tcp://localhost:8092/mem:viewstore;MVCC=true</connection-url>
                     <driver>h2</driver>
                     <pool>
                         <min-pool-size>3</min-pool-size>
