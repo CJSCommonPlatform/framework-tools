@@ -17,7 +17,7 @@ public class FrameworkLibraries {
 
     public FrameworkLibraries(final String... artifacts) {
         for (String artifact : artifacts) {
-            if (artifact.indexOf(":") == -1) {
+            if (artifact.indexOf(':') == -1) {
                 throw new IllegalArgumentException(format("Incorrect artifact name: %s", artifact));
             }
         }

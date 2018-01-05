@@ -24,7 +24,7 @@ public class FrameworkToolsTestListener {
 
         return new TestEvent(
                         envelope.metadata().id(),
-                envelope.metadata().version().orElse(null).intValue(),
+                envelope.metadata().version().orElse(Long.valueOf(0)).intValue(),
                         envelope.payloadAsJsonObject().toString());
     }
 }
