@@ -1,18 +1,17 @@
 package uk.gov.justice.framework.tools.fraction.runtime;
 
-import static org.jboss.shrinkwrap.api.ShrinkWrap.create;
-import static org.jboss.shrinkwrap.api.ShrinkWrap.createFromZipFile;
-
-import java.nio.file.Paths;
-
-import javax.inject.Inject;
-
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.wildfly.swarm.spi.api.DeploymentProcessor;
 import org.wildfly.swarm.spi.runtime.annotations.ConfigurationValue;
 import org.wildfly.swarm.spi.runtime.annotations.DeploymentScoped;
 import org.wildfly.swarm.undertow.WARArchive;
+
+import javax.inject.Inject;
+import java.nio.file.Paths;
+
+import static org.jboss.shrinkwrap.api.ShrinkWrap.create;
+import static org.jboss.shrinkwrap.api.ShrinkWrap.createFromZipFile;
 
 
 @DeploymentScoped
@@ -37,7 +36,7 @@ public class ArchiveLoader implements DeploymentProcessor {
 
 
     @Override
-    public void process() throws IllegalArgumentException {
+    public void process() {
 
             final WebArchive webArchive = createFromZipFile(WebArchive.class, Paths.get(library).toFile());
 
