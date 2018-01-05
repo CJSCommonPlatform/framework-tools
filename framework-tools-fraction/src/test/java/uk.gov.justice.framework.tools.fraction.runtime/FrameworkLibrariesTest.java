@@ -18,7 +18,7 @@ public class FrameworkLibrariesTest {
                 "uk.gov.justice.services:event-repository-jdbc:",
                 "uk.gov.justice.services:framework-api-core");
 
-        Archive<?>[] archives = frameworkLibraries.shrinkWrapArchives();
+        Archive[] archives = frameworkLibraries.shrinkWrapArchives();
 
         assertThat(archives[0].getName(), startsWith("event-repository-jdbc"));
         assertThat(archives[1].getName(), startsWith("framework-api-core"));

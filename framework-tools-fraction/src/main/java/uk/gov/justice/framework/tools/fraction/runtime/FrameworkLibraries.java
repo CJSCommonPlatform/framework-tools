@@ -1,11 +1,11 @@
 package uk.gov.justice.framework.tools.fraction.runtime;
 
-import static java.lang.String.format;
-import static org.wildfly.swarm.Swarm.artifact;
-
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ArchivePath;
 import org.jboss.shrinkwrap.api.Filter;
+
+import static java.lang.String.format;
+import static org.wildfly.swarm.Swarm.artifact;
 
 /**
  * Temporary solution to avoid conflicts between framework libraries brought in by the listener war
@@ -25,8 +25,8 @@ public class FrameworkLibraries {
     }
 
 
-    public Archive<?>[] shrinkWrapArchives() throws Exception {
-        final Archive<?>[] archives = new Archive<?>[artifacts.length];
+    public Archive[] shrinkWrapArchives() throws Exception {
+        final Archive[] archives = new Archive[artifacts.length];
         for (int i = 0; i < artifacts.length; i++) {
             archives[i] = artifact(artifacts[i]);
         }
