@@ -1,33 +1,6 @@
 package uk.gov.justice.framework.tools.replay;
 
 
-import static java.util.UUID.randomUUID;
-import static org.junit.Assert.assertTrue;
-import static uk.gov.justice.services.messaging.JsonObjectMetadata.metadataWithRandomUUID;
-import static uk.gov.justice.services.test.utils.core.messaging.JsonEnvelopeBuilder.envelope;
-
-import uk.gov.justice.services.eventsourcing.repository.jdbc.eventlog.EventLog;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidSequenceIdException;
-import uk.gov.justice.services.messaging.JsonEnvelope;
-import uk.gov.justice.services.messaging.Metadata;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.ZonedDateTime;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import javax.sql.DataSource;
-
 import liquibase.Liquibase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.ClassLoaderResourceAccessor;
@@ -36,6 +9,26 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.eventlog.EventLog;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidSequenceIdException;
+import uk.gov.justice.services.messaging.JsonEnvelope;
+import uk.gov.justice.services.messaging.Metadata;
+
+import javax.sql.DataSource;
+import java.io.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.ZonedDateTime;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+
+import static java.util.UUID.randomUUID;
+import static org.junit.Assert.assertTrue;
+import static uk.gov.justice.services.messaging.JsonObjectMetadata.metadataWithRandomUUID;
+import static uk.gov.justice.services.test.utils.core.messaging.JsonEnvelopeBuilder.envelope;
 
 public class ReplayIntegrationIT {
 
@@ -201,7 +194,7 @@ public class ReplayIntegrationIT {
             try (final BufferedReader reader =
                     new BufferedReader(new InputStreamReader(exec.getInputStream()))) {
 
-                final Pattern p = Pattern.compile(".*WFSWARM99999: WildFly Swarm is Ready.*", Pattern.MULTILINE | Pattern.DOTALL);
+                final Pattern p = Pattern.compile(".*========== ALL TASKS HAVE BEEN DISPATCHED -- SHUTDOWN =================.*", Pattern.MULTILINE | Pattern.DOTALL);
                 String line = "";
                 while ((line = reader.readLine()) != null) {
 
