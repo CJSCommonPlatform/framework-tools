@@ -1,21 +1,21 @@
 package uk.gov.justice.framework.tools.replay;
 
 
-import liquibase.Liquibase;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.resource.ClassLoaderResourceAccessor;
-import org.apache.commons.dbcp2.BasicDataSource;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static java.util.UUID.randomUUID;
+import static org.junit.Assert.assertTrue;
+import static uk.gov.justice.services.messaging.JsonObjectMetadata.metadataWithRandomUUID;
+import static uk.gov.justice.services.test.utils.core.messaging.JsonEnvelopeBuilder.envelope;
+
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventlog.EventLog;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidSequenceIdException;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.Metadata;
 
-import javax.sql.DataSource;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,10 +25,16 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import static java.util.UUID.randomUUID;
-import static org.junit.Assert.assertTrue;
-import static uk.gov.justice.services.messaging.JsonObjectMetadata.metadataWithRandomUUID;
-import static uk.gov.justice.services.test.utils.core.messaging.JsonEnvelopeBuilder.envelope;
+import javax.sql.DataSource;
+
+import liquibase.Liquibase;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.resource.ClassLoaderResourceAccessor;
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ReplayIntegrationIT {
 
@@ -44,6 +50,7 @@ public class ReplayIntegrationIT {
 
     @Before
     public void setUpDB() throws Exception {
+        createProcessFIle();
         EVENT_LOG_REPOSITORY = new TestEventLogRepository(initEventStoreDb());
         viewStoreDataSource = initViewStoreDb();
     }
@@ -53,6 +60,13 @@ public class ReplayIntegrationIT {
         insertEventLogData();
         runCommand(createCommandToExecuteReplay());
         assertTrue(viewStoreEventsPresent());
+    }
+
+    private void createProcessFIle() {
+        File file = new File("src/test/resources/processFile");
+        try {
+            file.createNewFile();
+        } catch (IOException e) {}
     }
 
     public boolean viewStoreEventsPresent() throws SQLException {

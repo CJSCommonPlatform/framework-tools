@@ -1,5 +1,8 @@
 package uk.gov.justice.framework.tools.replay;
 
+import static java.lang.String.format;
+import static org.wildfly.swarm.bootstrap.Main.MAIN_PROCESS_FILE;
+
 import org.slf4j.Logger;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.JdbcEventRepository;
 
@@ -10,6 +13,8 @@ import javax.ejb.Startup;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.concurrent.ManagedTaskListener;
 import javax.inject.Inject;
+
+import java.io.File;
 import java.util.Deque;
 import java.util.UUID;
 import java.util.concurrent.Future;
@@ -18,6 +23,8 @@ import java.util.concurrent.LinkedBlockingDeque;
 @Singleton
 @Startup
 public class StartReplay implements ManagedTaskListener {
+
+    private static final String NO_PROCESS_FILE_WARNING = "!!!!! No Swarm Process File specific, application will not auto-shutdown on completion. Please use option '-Dorg.wildfly.swarm.mainProcessFile=/pathTo/aFile' to specify location of process file with read/write permissions !!!!!";
 
     @Inject
     private Logger logger;
@@ -36,6 +43,9 @@ public class StartReplay implements ManagedTaskListener {
     @PostConstruct
     void go() {
         logger.info("-------------- Invoke Event Streams Replay-------------!");
+
+        checkForMainProcessFile();
+
         jdbcEventRepository.getStreamOfAllEventStreams()
                 .forEach(eventStream -> {
                     StreamDispatchTask dispatchTask = new StreamDispatchTask(eventStream, asyncStreamDispatcher, this);
@@ -76,6 +86,23 @@ public class StartReplay implements ManagedTaskListener {
     }
 
     private void shutdown() {
+        logger.info("========== ALL TASKS HAVE BEEN DISPATCHED -- ATTEMPTING SHUTDOWN =================");
+        final String processFile = System.getProperty(MAIN_PROCESS_FILE);
+        if (processFile != null) {
+            final File uuidFile = new File(processFile);
+            if (uuidFile.exists()) {
+                uuidFile.delete();
+            } else {
+                logger.warn(format("Failed to delete process file '%s', file does not exist", processFile));
+            }
+        }
+
         logger.info("========== ALL TASKS HAVE BEEN DISPATCHED -- SHUTDOWN =================");
+    }
+
+    private void checkForMainProcessFile() {
+        if (System.getProperty(MAIN_PROCESS_FILE) == null) {
+            logger.warn(NO_PROCESS_FILE_WARNING);
+        }
     }
 }
