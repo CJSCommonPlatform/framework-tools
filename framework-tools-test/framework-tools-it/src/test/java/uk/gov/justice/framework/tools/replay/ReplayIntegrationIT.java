@@ -50,7 +50,6 @@ public class ReplayIntegrationIT {
 
     @Before
     public void setUpDB() throws Exception {
-        createProcessFIle();
         EVENT_LOG_REPOSITORY = new TestEventLogRepository(initEventStoreDb());
         viewStoreDataSource = initViewStoreDb();
     }
@@ -59,14 +58,8 @@ public class ReplayIntegrationIT {
     public void runReplayTool() throws Exception {
         insertEventLogData();
         runCommand(createCommandToExecuteReplay());
+        executeCommand("touch src/test/resources/processFile");
         assertTrue(viewStoreEventsPresent());
-    }
-
-    private void createProcessFIle() {
-        File file = new File("src/test/resources/processFile");
-        try {
-            file.createNewFile();
-        } catch (IOException e) {}
     }
 
     public boolean viewStoreEventsPresent() throws SQLException {
@@ -152,7 +145,8 @@ public class ReplayIntegrationIT {
             debug = TEST_PROPERTIES.value("swarm.debug.args");
         }
 
-        final String command = commandFrom(debug, replayJarLocation, standaloneDSLocation, listenerLocation);
+        final String command = commandFrom(debug, replayJarLocation, standaloneDSLocation, listenerLocation,
+                TEST_PROPERTIES.value("process.file.location"));
 
         return command;
     }
@@ -160,12 +154,14 @@ public class ReplayIntegrationIT {
     private String commandFrom(final String debugString,
                                final String replayJarLocation,
                                final String standaloneDSLocation,
-                               final String listenerLocation) {
-        return String.format("java %s -Devent.listener.war=%s -jar %s -c %s",
+                               final String listenerLocation,
+                               final String processFileLocation) {
+        return String.format("java %s -Devent.listener.war=%s -jar %s -c %s -Dorg.wildfly.swarm.mainProcessFile=%s",
                 debugString,
                 listenerLocation,
                 replayJarLocation,
-                standaloneDSLocation);
+                standaloneDSLocation,
+                processFileLocation);
     }
 
     private static DataSource initDatabase(final String dbUrlPropertyName,
@@ -201,7 +197,7 @@ public class ReplayIntegrationIT {
 
     public void runCommand(final String command) throws Exception {
 
-        final Process exec = Runtime.getRuntime().exec(command);
+        final Process exec = executeCommand(command);
 
         new Thread(() -> {
             System.out.println("Redirecting output...");
@@ -252,6 +248,10 @@ public class ReplayIntegrationIT {
             System.out.println("WildFly Swarm process terminated by Test.");
         }
 
+    }
+
+    private Process executeCommand(final String command) throws IOException {
+        return Runtime.getRuntime().exec(command);
     }
 
     private void insertEventLogData() throws SQLException, InvalidSequenceIdException {

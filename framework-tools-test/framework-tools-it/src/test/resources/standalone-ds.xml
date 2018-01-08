@@ -19,9 +19,6 @@
         <extension module="org.wildfly.extension.request-controller"/>
         <extension module="org.wildfly.extension.security.manager"/>
     </extensions>
-    <system-properties>
-        <property name="org.wildfly.swarm.mainProcessFile" value="src/test/resources/processFile"/>
-    </system-properties>
     <management>
         <security-realms>
             <security-realm name="ManagementRealm">
