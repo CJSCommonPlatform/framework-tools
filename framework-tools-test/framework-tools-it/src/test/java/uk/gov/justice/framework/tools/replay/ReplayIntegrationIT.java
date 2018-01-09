@@ -1,6 +1,7 @@
 package uk.gov.justice.framework.tools.replay;
 
 
+import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.justice.services.messaging.JsonObjectMetadata.metadataWithRandomUUID;
@@ -11,11 +12,9 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidSe
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.Metadata;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,7 +22,6 @@ import java.sql.SQLException;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
@@ -52,13 +50,13 @@ public class ReplayIntegrationIT {
     public void setUpDB() throws Exception {
         EVENT_LOG_REPOSITORY = new TestEventLogRepository(initEventStoreDb());
         viewStoreDataSource = initViewStoreDb();
+        executeCommand(format("touch %s", TEST_PROPERTIES.value("process.file.location")));
     }
 
     @Test
     public void runReplayTool() throws Exception {
         insertEventLogData();
         runCommand(createCommandToExecuteReplay());
-        executeCommand("touch src/test/resources/processFile");
         assertTrue(viewStoreEventsPresent());
     }
 
@@ -156,12 +154,12 @@ public class ReplayIntegrationIT {
                                final String standaloneDSLocation,
                                final String listenerLocation,
                                final String processFileLocation) {
-        return String.format("java %s -Devent.listener.war=%s -jar %s -c %s -Dorg.wildfly.swarm.mainProcessFile=%s",
+        return format("java %s -Dorg.wildfly.swarm.mainProcessFile=%s -Devent.listener.war=%s -jar %s -c %s",
                 debugString,
+                processFileLocation,
                 listenerLocation,
                 replayJarLocation,
-                standaloneDSLocation,
-                processFileLocation);
+                standaloneDSLocation);
     }
 
     private static DataSource initDatabase(final String dbUrlPropertyName,
@@ -198,31 +196,6 @@ public class ReplayIntegrationIT {
     public void runCommand(final String command) throws Exception {
 
         final Process exec = executeCommand(command);
-
-        new Thread(() -> {
-            System.out.println("Redirecting output...");
-            try (final BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(exec.getInputStream()))) {
-
-                final Pattern p = Pattern.compile(".*========== ALL TASKS HAVE BEEN DISPATCHED -- SHUTDOWN =================.*", Pattern.MULTILINE | Pattern.DOTALL);
-                String line = "";
-                while ((line = reader.readLine()) != null) {
-
-                    System.out.println(line);
-
-                    if (p.matcher(line).matches()) {
-                        // Fraction has run so kill server now
-                        exec.destroyForcibly();
-                        break;
-                    }
-
-                }
-            }
-            catch (IOException ioEx) {
-                System.out.println("IOException occurred reading process input stream");
-            }
-
-            }).start();
 
         System.out.println("Process started, waiting for completion..");
 
