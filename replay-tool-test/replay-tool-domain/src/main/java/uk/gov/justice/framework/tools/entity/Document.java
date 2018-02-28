@@ -1,5 +1,6 @@
 package uk.gov.justice.framework.tools.entity;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -9,7 +10,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "document")
-public class Document {
+public class Document implements Serializable{
 
     @Id
     @Column(name = "document_id")

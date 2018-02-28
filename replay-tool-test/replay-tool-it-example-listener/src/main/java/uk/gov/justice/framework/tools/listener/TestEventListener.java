@@ -5,7 +5,6 @@ import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
 import uk.gov.justice.framework.tools.entity.Document;
 import uk.gov.justice.framework.tools.entity.Test;
 import uk.gov.justice.framework.tools.repository.TestViewstoreRepository;
-import uk.gov.justice.services.core.annotation.Component;
 import uk.gov.justice.services.core.annotation.Handles;
 import uk.gov.justice.services.core.annotation.ServiceComponent;
 import uk.gov.justice.services.messaging.JsonEnvelope;
