@@ -7,7 +7,8 @@
     <persistence-unit name="replay-test">
         <provider>org.hibernate.ejb.HibernatePersistence</provider>
         <jta-data-source>java:/DS.replay</jta-data-source>
-        <class>uk.gov.justice.framework.tools.entity.TestEvent</class>
+        <class>uk.gov.justice.framework.tools.entity.Test</class>
+        <class>uk.gov.justice.framework.tools.entity.Document</class>
     </persistence-unit>
 
 </persistence>

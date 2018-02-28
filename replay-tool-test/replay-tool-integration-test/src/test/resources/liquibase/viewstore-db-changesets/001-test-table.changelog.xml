@@ -8,20 +8,31 @@
                logicalFilePath="001-test-table.changelog.xml">
 
         <createTable tableName="test">
-            <column name="stream_id" type="uuid">
+            <column name="test_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
-            <column name="version_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="data" type="VARCHAR(255)" >
+            <column name="data" type="TEXT">
                 <constraints nullable="false"/>
             </column>
         </createTable>
 
         <addUniqueConstraint tableName="test"
-                             columnNames="stream_id, version_id"
-                             constraintName="stream_id_version_id"/>
+                             columnNames="test_id"
+                             constraintName="unique_test_id_"/>
+
+        <createTable tableName="document">
+            <column name="document_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="test_id" type="UUID">
+                <constraints foreignKeyName="fk_document_id_test_id"
+                             referencedTableName="test"
+                             referencedColumnNames="test_id"/>
+            </column>
+        </createTable>
 
     </changeSet>
 

@@ -45,6 +45,8 @@ public class StartReplay implements ManagedTaskListener {
 
     @PostConstruct
     void go() {
+
+
         logger.info("-------------- Invoke Event Streams Replay-------------!");
         checkForMainProcessFile();
         jdbcEventRepository.getStreamOfAllActiveEventStreams()

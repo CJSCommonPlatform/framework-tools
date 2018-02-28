@@ -31,13 +31,18 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>uk.gov.justice.framework.tools</groupId>
+            <artifactId>replay-tool-domain</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-library</artifactId>
+            <artifactId>hamcrest-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

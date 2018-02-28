@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>uk.gov.justice.framework.tools</groupId>
     <artifactId>replay-tool-it-example-listener</artifactId>
-    <version>1.0.0</version>
+    <version>3.2.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <properties>
@@ -68,7 +68,7 @@
             <groupId>uk.gov.justice.services</groupId>
             <artifactId>persistence-deltaspike</artifactId>
             <version>${framework.version}</version>
-         </dependency>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.deltaspike.core</groupId>
@@ -80,26 +80,32 @@
             <artifactId>deltaspike-data-module-api</artifactId>
             <version>${deltaspike.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>uk.gov.justice.framework.tools</groupId>
+            <artifactId>replay-tool-domain</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-             <plugin>
-                 <groupId>org.apache.maven.plugins</groupId>
-                 <artifactId>maven-war-plugin</artifactId>
-                 <configuration>
-                     <webResources>
-                         <resource>
-                             <directory>${project.build.outputDirectory}</directory>
-                             <targetPath>WEB-INF</targetPath>
-                             <filtering>true</filtering>
-                             <includes>
-                                 <include>ejb-jar.xml</include>
-                             </includes>
-                         </resource>
-                     </webResources>
-                 </configuration>
-             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <webResources>
+                        <resource>
+                            <directory>${project.build.outputDirectory}</directory>
+                            <targetPath>WEB-INF</targetPath>
+                            <filtering>true</filtering>
+                            <includes>
+                                <include>ejb-jar.xml</include>
+                            </includes>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

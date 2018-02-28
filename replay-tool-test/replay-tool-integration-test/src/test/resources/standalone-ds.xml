@@ -62,6 +62,35 @@
         </access-control>
     </management>
     <profile>
+        <!--<subsystem xmlns="urn:jboss:domain:logging:3.0">-->
+            <!--<console-handler name="CONSOLE">-->
+                <!--<level name="INFO"/>-->
+                <!--<formatter>-->
+                    <!--<named-formatter name="COLOR-PATTERN"/>-->
+                <!--</formatter>-->
+            <!--</console-handler>-->
+            <!--<logger category="com.arjuna">-->
+                <!--<level name="WARN"/>-->
+            <!--</logger>-->
+            <!--<logger category="org.jboss.as.config">-->
+                <!--<level name="DEBUG"/>-->
+            <!--</logger>-->
+            <!--<logger category="sun.rmi">-->
+                <!--<level name="WARN"/>-->
+            <!--</logger>-->
+            <!--<root-logger>-->
+                <!--<level name="DEBUG"/>-->
+                <!--<handlers>-->
+                    <!--<handler name="CONSOLE"/>-->
+                <!--</handlers>-->
+            <!--</root-logger>-->
+            <!--<formatter name="PATTERN">-->
+                <!--<pattern-formatter pattern="%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n"/>-->
+            <!--</formatter>-->
+            <!--<formatter name="COLOR-PATTERN">-->
+                <!--<pattern-formatter pattern="%K{level}%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n"/>-->
+            <!--</formatter>-->
+        <!--</subsystem>-->
         <subsystem xmlns="urn:jboss:domain:logging:3.0">
             <console-handler name="CONSOLE">
                 <level name="INFO"/>
@@ -69,7 +98,24 @@
                     <named-formatter name="COLOR-PATTERN"/>
                 </formatter>
             </console-handler>
+            <periodic-rotating-file-handler name="FILE" autoflush="true">
+                <formatter>
+                    <named-formatter name="PATTERN"/>
+                </formatter>
+                <file relative-to="jboss.server.log.dir" path="server.log"/>
+                <suffix value=".yyyy-MM-dd"/>
+                <append value="true"/>
+            </periodic-rotating-file-handler>
             <logger category="com.arjuna">
+                <level name="WARN"/>
+            </logger>
+            <logger category="jboss.jdbc.spy">
+                <level name="INFO"/>
+            </logger>
+            <logger category="io.prometheus.jmx">
+                <level name="WARN"/>
+            </logger>
+            <logger category="io.prometheus.jmx.shaded.io.prometheus.jmx">
                 <level name="WARN"/>
             </logger>
             <logger category="org.jboss.as.config">
@@ -78,17 +124,27 @@
             <logger category="sun.rmi">
                 <level name="WARN"/>
             </logger>
-            <root-logger>
+            <logger category="org.postgresql">
+                <level name="WARN"/>
+            </logger>
+            <logger category="uk.gov.justice.services">
                 <level name="DEBUG"/>
+            </logger>
+            <logger category="uk.gov.justice.services.core.audit.SimpleAuditClient">
+                <level name="WARN"/>
+            </logger>
+            <root-logger>
+                <level name="INFO"/>
                 <handlers>
                     <handler name="CONSOLE"/>
+                    <handler name="FILE"/>
                 </handlers>
             </root-logger>
             <formatter name="PATTERN">
-                <pattern-formatter pattern="%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n"/>
+                <pattern-formatter pattern="%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c] (%t) %X{frameworkRequestData} %s%e%n"/>
             </formatter>
             <formatter name="COLOR-PATTERN">
-                <pattern-formatter pattern="%K{level}%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n"/>
+                <pattern-formatter pattern="%K{level}%d{HH:mm:ss,SSS} %-5p [%c] (%t) %X{frameworkRequestData} %s%e%n"/>
             </formatter>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:bean-validation:1.0"/>

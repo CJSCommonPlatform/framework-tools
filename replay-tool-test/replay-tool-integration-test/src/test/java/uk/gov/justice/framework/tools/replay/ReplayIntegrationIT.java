@@ -3,10 +3,17 @@ package uk.gov.justice.framework.tools.replay;
 
 import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.justice.framework.tools.replay.DatabaseUtils.cleanupDataSource;
+import static uk.gov.justice.framework.tools.replay.DatabaseUtils.getDocuments;
+import static uk.gov.justice.framework.tools.replay.DatabaseUtils.getDocumentsCount;
+import static uk.gov.justice.framework.tools.replay.DatabaseUtils.getTestCount;
 import static uk.gov.justice.framework.tools.replay.DatabaseUtils.initViewStoreDb;
 import static uk.gov.justice.framework.tools.replay.DatabaseUtils.viewStoreEvents;
+
+import uk.gov.justice.framework.tools.entity.Document;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -14,6 +21,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -22,6 +30,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Note, you need to run this test from mvn as their are additional maven steps
+ */
 public class ReplayIntegrationIT {
 
     private static final TestProperties TEST_PROPERTIES = new TestProperties("test.properties");
@@ -41,26 +52,37 @@ public class ReplayIntegrationIT {
         createProcessFile();
     }
 
+    @After
+    public void tearDown() throws SQLException {
+        cleanupDataSource(EVENT_LOG_REPOSITORY.getDataSource(), "event_log");
+        cleanupDataSource(viewStoreDataSource, "document");
+        cleanupDataSource(viewStoreDataSource, "test");
+    }
+
     @Test
     public void runReplayTool() throws Exception {
         final List<String> insertedEvents = insertEventData(randomUUID());
+
+        assertThat(insertedEvents.size(), is(2));
         runCommand(createCommandToExecuteReplay());
         viewStoreEvents(viewStoreDataSource).forEach(viewStoreEvent -> {
             System.out.println(format("viewStoreEvent with id %s", viewStoreEvent));
             insertedEvents.remove(viewStoreEvent);
         });
-        assertTrue(insertedEvents.isEmpty());
+
+        List<Document> documents = getDocuments(viewStoreDataSource);
+
+        assertThat(documents.size(), is(3));
+        assertThat(getTestCount(viewStoreDataSource), is(1));
+        assertThat(getDocumentsCount(viewStoreDataSource), is(3));
+
+        assertThat(documents.stream()
+                .filter(d->d.getName().equalsIgnoreCase("newDocumentName")).count(), is(1L));
     }
 
     private List<String> insertEventData(final UUID streamId) {
         EVENT_STREAM_JDBC_REPOSITORY.insert(streamId);
         return EVENT_LOG_REPOSITORY.insertEventData(streamId);
-    }
-
-    @After
-    public void tearDown() throws SQLException {
-        cleanupDataSource(EVENT_LOG_REPOSITORY.getDataSource(), "event_log");
-        cleanupDataSource(viewStoreDataSource, "test");
     }
 
     private void runCommand(final String command) throws Exception {
@@ -86,6 +108,7 @@ public class ReplayIntegrationIT {
         }
 
     }
+
     private void createProcessFile() throws Exception {
         Runtime.getRuntime().exec(format("touch %s", PROCESS_FILE_LOCATION));
     }
