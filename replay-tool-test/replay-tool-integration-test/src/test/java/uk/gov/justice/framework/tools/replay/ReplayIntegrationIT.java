@@ -5,11 +5,11 @@ import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static uk.gov.justice.framework.tools.replay.DatabaseUtils.cleanupDataSource;
 import static uk.gov.justice.framework.tools.replay.DatabaseUtils.getDocuments;
 import static uk.gov.justice.framework.tools.replay.DatabaseUtils.getDocumentsCount;
 import static uk.gov.justice.framework.tools.replay.DatabaseUtils.getTestCount;
+import static uk.gov.justice.framework.tools.replay.DatabaseUtils.getTestEntitiesFrom;
 import static uk.gov.justice.framework.tools.replay.DatabaseUtils.initViewStoreDb;
 import static uk.gov.justice.framework.tools.replay.DatabaseUtils.viewStoreEvents;
 
@@ -21,7 +21,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -61,29 +60,61 @@ public class ReplayIntegrationIT {
 
     @Test
     public void runReplayTool() throws Exception {
-        final List<String> insertedEvents = insertEventData(randomUUID());
-
+        final UUID testId = randomUUID();
+        insertEventStreamFor(testId);
+        
+        final List<String> insertedEvents = insertCreateAndUpdateDocumentEvents(testId, "newDocumentName");
         assertThat(insertedEvents.size(), is(2));
+
+        runCommand(createCommandToExecuteReplay());
+
+        assertThat(getTestCount(viewStoreDataSource), is(1));
+        assertThat(getDocumentsCount(viewStoreDataSource), is(3));
+
+        final List<uk.gov.justice.framework.tools.entity.Test> testEntities = getTestEntitiesFrom(viewStoreDataSource);
+        assertThat(testEntities.size(), is(1));
+
+        final uk.gov.justice.framework.tools.entity.Test testEntity = testEntities.get(0);
+        assertThat(testEntity.getData(), is("a string"));
+        assertThat(testEntity.getTestId(), is(testId));
+
+        final List<Document> documents = getDocuments(viewStoreDataSource);
+        assertThat(documents.size(), is(3));
+
+        assertThat(documents.stream()
+                .filter(d -> d.getName().equalsIgnoreCase("newDocumentName"))
+                .count(), is(1L));
+
+        assertThat(documents.stream()
+                .filter(d -> d.getTestId().equals(testId))
+                .count(), is(3L));
+    }
+
+    @Test
+    public void shouldProcessMultipleCreateEvents() throws Exception {
+        final UUID testId = randomUUID();
+        insertEventStreamFor(testId);
+
+        final List<String> insertedEvents = insertMultipleCreateEvents(testId);
         runCommand(createCommandToExecuteReplay());
         viewStoreEvents(viewStoreDataSource).forEach(viewStoreEvent -> {
             System.out.println(format("viewStoreEvent with id %s", viewStoreEvent));
             insertedEvents.remove(viewStoreEvent);
         });
-
-        List<Document> documents = getDocuments(viewStoreDataSource);
-
-        assertThat(documents.size(), is(3));
-        assertThat(getTestCount(viewStoreDataSource), is(1));
-        assertThat(getDocumentsCount(viewStoreDataSource), is(3));
-
-        assertThat(documents.stream()
-                .filter(d->d.getName().equalsIgnoreCase("newDocumentName")).count(), is(1L));
     }
 
-    private List<String> insertEventData(final UUID streamId) {
+    private void insertEventStreamFor(final UUID streamId) {
         EVENT_STREAM_JDBC_REPOSITORY.insert(streamId);
+    }
+
+    private List<String> insertCreateAndUpdateDocumentEvents(final UUID streamId, final String updateDocumentName) {
+        return EVENT_LOG_REPOSITORY.insertEventData(streamId, updateDocumentName);
+    }
+
+    private List<String> insertMultipleCreateEvents(final UUID streamId) {
         return EVENT_LOG_REPOSITORY.insertEventData(streamId);
     }
+
 
     private void runCommand(final String command) throws Exception {
         final Process exec = Runtime.getRuntime().exec(command);

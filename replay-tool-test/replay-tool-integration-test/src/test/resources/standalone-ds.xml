@@ -62,35 +62,6 @@
         </access-control>
     </management>
     <profile>
-        <!--<subsystem xmlns="urn:jboss:domain:logging:3.0">-->
-            <!--<console-handler name="CONSOLE">-->
-                <!--<level name="INFO"/>-->
-                <!--<formatter>-->
-                    <!--<named-formatter name="COLOR-PATTERN"/>-->
-                <!--</formatter>-->
-            <!--</console-handler>-->
-            <!--<logger category="com.arjuna">-->
-                <!--<level name="WARN"/>-->
-            <!--</logger>-->
-            <!--<logger category="org.jboss.as.config">-->
-                <!--<level name="DEBUG"/>-->
-            <!--</logger>-->
-            <!--<logger category="sun.rmi">-->
-                <!--<level name="WARN"/>-->
-            <!--</logger>-->
-            <!--<root-logger>-->
-                <!--<level name="DEBUG"/>-->
-                <!--<handlers>-->
-                    <!--<handler name="CONSOLE"/>-->
-                <!--</handlers>-->
-            <!--</root-logger>-->
-            <!--<formatter name="PATTERN">-->
-                <!--<pattern-formatter pattern="%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n"/>-->
-            <!--</formatter>-->
-            <!--<formatter name="COLOR-PATTERN">-->
-                <!--<pattern-formatter pattern="%K{level}%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n"/>-->
-            <!--</formatter>-->
-        <!--</subsystem>-->
         <subsystem xmlns="urn:jboss:domain:logging:3.0">
             <console-handler name="CONSOLE">
                 <level name="INFO"/>
@@ -141,10 +112,12 @@
                 </handlers>
             </root-logger>
             <formatter name="PATTERN">
-                <pattern-formatter pattern="%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c] (%t) %X{frameworkRequestData} %s%e%n"/>
+                <pattern-formatter
+                        pattern="%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c] (%t) %X{frameworkRequestData} %s%e%n"/>
             </formatter>
             <formatter name="COLOR-PATTERN">
-                <pattern-formatter pattern="%K{level}%d{HH:mm:ss,SSS} %-5p [%c] (%t) %X{frameworkRequestData} %s%e%n"/>
+                <pattern-formatter
+                        pattern="%K{level}%d{HH:mm:ss,SSS} %-5p [%c] (%t) %X{frameworkRequestData} %s%e%n"/>
             </formatter>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:bean-validation:1.0"/>
@@ -153,7 +126,8 @@
                 <datasource jndi-name="java:/app/replay-tool/DS.eventstore"
                             pool-name="DS.replay-tool.eventstore" enabled="true"
                             use-java-context="true">
-                    <connection-url>jdbc:h2:tcp://localhost:8092/mem:eventstore;MVCC=true</connection-url>
+                    <connection-url>jdbc:h2:tcp://localhost:8092/mem:eventstore;MVCC=true
+                    </connection-url>
                     <driver>h2</driver>
                     <pool>
                         <min-pool-size>3</min-pool-size>
@@ -169,7 +143,8 @@
                 <datasource jndi-name="java:/DS.replay"
                             pool-name="DS.replay-pool" enabled="true"
                             use-java-context="true">
-                    <connection-url>jdbc:h2:tcp://localhost:8092/mem:viewstore;MVCC=true</connection-url>
+                    <connection-url>jdbc:h2:tcp://localhost:8092/mem:viewstore;MVCC=true
+                    </connection-url>
                     <driver>h2</driver>
                     <pool>
                         <min-pool-size>3</min-pool-size>
@@ -181,8 +156,10 @@
                         <password>sa</password>
                     </security>
                 </datasource>
-                <datasource jndi-name="java:jboss/datasources/ExampleDS" pool-name="ExampleDS" enabled="true" use-java-context="true">
-                    <connection-url>jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</connection-url>
+                <datasource jndi-name="java:jboss/datasources/ExampleDS" pool-name="ExampleDS"
+                            enabled="true" use-java-context="true">
+                    <connection-url>jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+                    </connection-url>
                     <driver>h2</driver>
                     <security>
                         <user-name>sa</user-name>
@@ -277,8 +254,12 @@
 
         <subsystem xmlns="urn:jboss:domain:naming:2.0">
             <bindings>
-                <simple name="java:global/event.buffer.init.strategy" value="uk.gov.justice.services.event.buffer.core.service.AnsiSQLBasedBufferInitialisationStrategy" type="java.lang.String"/>
-                <simple name="java:global/eventlog.insertion.strategy" value="uk.gov.justice.services.eventsourcing.repository.jdbc.AnsiSQLEventLogInsertionStrategy" type="java.lang.String"/>
+                <simple name="java:global/event.buffer.init.strategy"
+                        value="uk.gov.justice.services.event.buffer.core.service.AnsiSQLBasedBufferInitialisationStrategy"
+                        type="java.lang.String"/>
+                <simple name="java:global/eventlog.insertion.strategy"
+                        value="uk.gov.justice.services.eventsourcing.repository.jdbc.AnsiSQLEventLogInsertionStrategy"
+                        type="java.lang.String"/>
             </bindings>
         </subsystem>
 

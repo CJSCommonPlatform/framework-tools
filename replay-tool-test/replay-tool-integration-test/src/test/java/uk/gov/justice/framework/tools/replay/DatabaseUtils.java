@@ -6,6 +6,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import uk.gov.justice.framework.tools.entity.Document;
+import uk.gov.justice.framework.tools.entity.Test;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -73,39 +74,29 @@ public class DatabaseUtils {
              final PreparedStatement ps = connection.prepareStatement("SELECT * FROM test")) {
             final ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                String testId = rs.getString("test_id");
-                String data = rs.getString("data");
-
-                assertThat(data, is("a string"));
-
-                viewStoreEvents.add(testId);
+                viewStoreEvents.add(rs.getString("stream_id"));
             }
-//            return viewStoreEvents;
-//        }
-
-//
-//        Set<String> names = new HashSet<>();
-//        try (final Connection connection = viewStoreDataSource.getConnection();
-//             final PreparedStatement ps = connection.prepareStatement("SELECT * FROM document")) {
-//            final ResultSet rs = ps.executeQuery();
-//            while (rs.next()) {
-//                String document_id = rs.getString("document_id");
-//                String name = rs.getString("name");
-//
-//                names.add(name);
-//
-////                assertThat(data, is("test"));
-//
-////                viewStoreEvents.add(document_id);
-//            }
-//
-//            assertTrue(names.contains("newDocumentName"));
-//            assertThat(names.size(), is(3));
             return viewStoreEvents;
         }
     }
 
-    public static int getTestCount(DataSource viewStoreDataSource) throws SQLException {
+    public static List<Test> getTestEntitiesFrom(final DataSource viewStoreDataSource) throws SQLException {
+        final List<Test> tests = new LinkedList<>();
+
+        try (final Connection connection = viewStoreDataSource.getConnection();
+             final PreparedStatement ps = connection.prepareStatement("SELECT * FROM test")) {
+            final ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String testId = rs.getString("test_id");
+                String data = rs.getString("data");
+
+                tests.add(new Test(UUID.fromString(testId), data));
+            }
+            return tests;
+        }
+    }
+
+    public static int getTestCount(final DataSource viewStoreDataSource) throws SQLException {
         try (final Connection connection = viewStoreDataSource.getConnection();
              final PreparedStatement ps = connection.prepareStatement("SELECT count (*) FROM test")) {
             final ResultSet rs = ps.executeQuery();
@@ -116,7 +107,7 @@ public class DatabaseUtils {
         return 0;
     }
 
-    public static int getDocumentsCount(DataSource viewStoreDataSource) throws SQLException {
+    public static int getDocumentsCount(final DataSource viewStoreDataSource) throws SQLException {
         try (final Connection connection = viewStoreDataSource.getConnection();
              final PreparedStatement ps = connection.prepareStatement("SELECT count (*) FROM document")) {
             final ResultSet rs = ps.executeQuery();
@@ -127,17 +118,17 @@ public class DatabaseUtils {
         return 0;
     }
 
-    public static List<Document> getDocuments(DataSource viewStoreDataSource) throws SQLException {
+    public static List<Document> getDocuments(final DataSource viewStoreDataSource) throws SQLException {
 
-        List<Document> documents = new ArrayList<>();
+        final List<Document> documents = new ArrayList<>();
 
         try (final Connection connection = viewStoreDataSource.getConnection();
              final PreparedStatement ps = connection.prepareStatement("SELECT * FROM document")) {
             final ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                String document_id = rs.getString("document_id");
-                String name = rs.getString("name");
-                String testId = rs.getString("test_id");
+                final String document_id = rs.getString("document_id");
+                final String name = rs.getString("name");
+                final String testId = rs.getString("test_id");
 
                 documents.add(new Document(UUID.fromString(document_id), name, UUID.fromString(testId)));
             }

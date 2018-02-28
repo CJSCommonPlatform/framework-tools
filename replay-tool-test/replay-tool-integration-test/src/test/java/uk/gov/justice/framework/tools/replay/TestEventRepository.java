@@ -24,6 +24,7 @@ import java.util.UUID;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp2.BasicDataSource;
@@ -56,6 +57,10 @@ public class TestEventRepository extends EventJdbcRepository {
     }
 
     public List<String> insertEventData(final UUID streamId) {
+        return range(1L, 6L).mapToObj(sequenceId -> insertEvent(streamId, sequenceId)).collect(toList());
+    }
+
+    public List<String> insertEventData(final UUID streamId, final String newDocumentName) {
 
         final UUID documentId = UUID.randomUUID();
 
@@ -64,14 +69,14 @@ public class TestEventRepository extends EventJdbcRepository {
                 .collect(toList());
 
         collect.addAll(range(2L, 3L)
-                .mapToObj(sequenceId -> insertUpdateEvent(streamId, sequenceId, documentId))
+                .mapToObj(sequenceId -> insertUpdateEvent(streamId, sequenceId, documentId, newDocumentName))
                 .collect(toList()));
 
         return collect;
     }
 
-    private String insertUpdateEvent(final UUID streamId, final long sequenceId, final UUID documentId) {
-        final Event secondEvent = updateEventFrom("framework.example.update", streamId, sequenceId, documentId);
+    private String insertUpdateEvent(final UUID streamId, final long sequenceId, final UUID documentId, final String newDocumentName) {
+        final Event secondEvent = updateEventFrom("framework.example.update", streamId, sequenceId, documentId, newDocumentName);
 
         try {
             insert(secondEvent);
@@ -82,6 +87,11 @@ public class TestEventRepository extends EventJdbcRepository {
         return secondEvent.getId().toString();
 
     }
+
+    private String insertEvent(final UUID streamId, final long sequenceId) {
+        return insertEvent(streamId, sequenceId, null);
+    }
+
     private String insertEvent(final UUID streamId, final long sequenceId, final UUID documentId) {
 
         final Event event = eventFrom("framework.example-test", streamId, sequenceId, documentId);
@@ -94,10 +104,10 @@ public class TestEventRepository extends EventJdbcRepository {
             throw new RuntimeException(e);
         }
 
-        return event.getId().toString();
+        return event.getStreamId().toString();
     }
 
-    private Event updateEventFrom(final String eventName, final UUID eventStreamId, final long sequenceId, final UUID documentId) {
+    private Event updateEventFrom(final String eventName, final UUID eventStreamId, final long sequenceId, final UUID documentId, final String newDocumentName) {
         final ZonedDateTime createdAt = new UtcClock().now();
         final Metadata metadata = metadataWithRandomUUID(eventName)
                 .createdAt(createdAt)
@@ -106,30 +116,31 @@ public class TestEventRepository extends EventJdbcRepository {
 
         final JsonObject payload = createObjectBuilder().add("testId", eventStreamId.toString())
                 .add("documentId", documentId.toString())
-                .add("name", "newDocumentName").build();
+                .add("name", newDocumentName).build();
 
         return new Event(metadata.id(), eventStreamId, sequenceId, eventName, metadata.asJsonObject().toString(), payload.toString(), createdAt);
     }
 
     private Event eventFrom(final String eventName, final UUID eventStreamId, final long sequenceId, final UUID documentId) {
 
-        final JsonArray documentsArray = Json.createArrayBuilder()
-                .add(createObjectBuilder()
-                        .add("documentId", documentId.toString())
-                        .add("name", "documentName").build())
-                .add(createObjectBuilder()
-                        .add("documentId", UUID.randomUUID().toString())
-                        .add("name", "documentName2").build())
-                .add(createObjectBuilder()
-                        .add("documentId", UUID.randomUUID().toString())
-                        .add("name", "documentName3").build()).build();
-
-
-        final JsonObject payload = createObjectBuilder()
+        final JsonObjectBuilder payloadBuilder = createObjectBuilder()
                 .add("testId", eventStreamId.toString())
-                .add("data", "a string")
-                .add("documents", documentsArray).build();
+                .add("data", "a string");
 
+        if (documentId != null) {
+            final JsonArray documentsArray = Json.createArrayBuilder()
+                    .add(createObjectBuilder()
+                            .add("documentId", documentId != null ? documentId.toString() : UUID.randomUUID().toString())
+                            .add("name", "documentName").build())
+                    .add(createObjectBuilder()
+                            .add("documentId", UUID.randomUUID().toString())
+                            .add("name", "documentName2").build())
+                    .add(createObjectBuilder()
+                            .add("documentId", UUID.randomUUID().toString())
+                            .add("name", "documentName3").build()).build();
+
+            payloadBuilder.add("documents", documentsArray);
+        }
 
         final ZonedDateTime createdAt = new UtcClock().now();
         final Metadata metadata = metadataWithRandomUUID(eventName)
@@ -137,6 +148,6 @@ public class TestEventRepository extends EventJdbcRepository {
                 .withVersion(sequenceId)
                 .withStreamId(eventStreamId).build();
 
-        return new Event(metadata.id(), eventStreamId, sequenceId, eventName, metadata.asJsonObject().toString(), payload.toString(), createdAt);
+        return new Event(metadata.id(), eventStreamId, sequenceId, eventName, metadata.asJsonObject().toString(), payloadBuilder.build().toString(), createdAt);
     }
 }

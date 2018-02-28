@@ -33,8 +33,10 @@ public class TestEventListener {
     public void handle(final JsonEnvelope envelope) {
         logger.info("******************** framework.example-test");
 
+        final UUID testId = envelope.metadata().streamId().orElse(null);
+
         final Test test = new Test(
-                envelope.metadata().streamId().get(),
+                testId,
                 envelope.payloadAsJsonObject().getString("data"));
 
         final JsonArray documents = envelope.payloadAsJsonObject().getJsonArray("documents");
@@ -44,7 +46,7 @@ public class TestEventListener {
             documentsList.add(new Document(
                     UUID.fromString(object.getString("documentId")),
                     object.getString("name"),
-                    envelope.metadata().streamId().get()));
+                    testId));
         }
         test.setDocuments(documentsList);
 
