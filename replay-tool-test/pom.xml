@@ -10,12 +10,13 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <modules>
+        <module>replay-tool-domain</module>
         <module>replay-tool-it-example-listener</module>
         <module>replay-tool-integration-test</module>
     </modules>
 
     <properties>
-        <replay-tool-it-example-listener.version>1.0.0</replay-tool-it-example-listener.version>
+        <replay-tool-it-example-listener.version>3.2.0-SNAPSHOT</replay-tool-it-example-listener.version>
         <metrics-servlet.version>1.1.0</metrics-servlet.version>
     </properties>
 

@@ -1,20 +1,28 @@
 package uk.gov.justice.framework.tools.replay;
 
 
-import liquibase.Liquibase;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.resource.ClassLoaderResourceAccessor;
-import org.apache.commons.dbcp2.BasicDataSource;
+import static java.lang.String.format;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-import javax.sql.DataSource;
+import uk.gov.justice.framework.tools.entity.Document;
+import uk.gov.justice.framework.tools.entity.Test;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
-import static java.lang.String.format;
+import javax.sql.DataSource;
+
+import liquibase.Liquibase;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.resource.ClassLoaderResourceAccessor;
+import org.apache.commons.dbcp2.BasicDataSource;
 
 public class DatabaseUtils {
 
@@ -70,6 +78,62 @@ public class DatabaseUtils {
             }
             return viewStoreEvents;
         }
+    }
+
+    public static List<Test> getTestEntitiesFrom(final DataSource viewStoreDataSource) throws SQLException {
+        final List<Test> tests = new LinkedList<>();
+
+        try (final Connection connection = viewStoreDataSource.getConnection();
+             final PreparedStatement ps = connection.prepareStatement("SELECT * FROM test")) {
+            final ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String testId = rs.getString("test_id");
+                String data = rs.getString("data");
+
+                tests.add(new Test(UUID.fromString(testId), data));
+            }
+            return tests;
+        }
+    }
+
+    public static int getTestCount(final DataSource viewStoreDataSource) throws SQLException {
+        try (final Connection connection = viewStoreDataSource.getConnection();
+             final PreparedStatement ps = connection.prepareStatement("SELECT count (*) FROM test")) {
+            final ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
+
+    public static int getDocumentsCount(final DataSource viewStoreDataSource) throws SQLException {
+        try (final Connection connection = viewStoreDataSource.getConnection();
+             final PreparedStatement ps = connection.prepareStatement("SELECT count (*) FROM document")) {
+            final ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
+
+    public static List<Document> getDocuments(final DataSource viewStoreDataSource) throws SQLException {
+
+        final List<Document> documents = new ArrayList<>();
+
+        try (final Connection connection = viewStoreDataSource.getConnection();
+             final PreparedStatement ps = connection.prepareStatement("SELECT * FROM document")) {
+            final ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                final String document_id = rs.getString("document_id");
+                final String name = rs.getString("name");
+                final String testId = rs.getString("test_id");
+
+                documents.add(new Document(UUID.fromString(document_id), name, UUID.fromString(testId)));
+            }
+        }
+        return documents;
     }
 
     public static void cleanupDataSource(DataSource dataSource, String tableName) throws SQLException {
