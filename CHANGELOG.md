@@ -5,8 +5,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
-## [2.0.2]
+## [2.1.0] - 2018-04-12
 
+### Changed
 - Ugraded to framework 2.5.3
 
 ## [2.0.1] - 2017-11-09
