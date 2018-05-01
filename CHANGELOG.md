@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [4.1.0] -2018-05-01
+
+### Changed
+- Exclude schema catalog loader classes when merging WARs
+
 ## [4.0.0] - 2018-03-12
 
 ### Changed
