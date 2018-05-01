@@ -89,3 +89,5 @@ Thumbs.db
 /components/command/command-handler/conf/openejb.xml
 /components/command/command-handler/conf/users.properties
 /framework-tools-replay/*.war
+/replay-tool-test/replay-tool-integration-test/*.log*
+replay-tool-test/replay-tool-integration-test/src/test/resources/processFile
