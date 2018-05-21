@@ -69,19 +69,42 @@
                     <named-formatter name="COLOR-PATTERN"/>
                 </formatter>
             </console-handler>
-            <logger category="com.arjuna">
-                <level name="WARN"/>
-            </logger>
-            <logger category="org.jboss.as.config">
+
+            <file-handler name="FILE" autoflush="true">
+                <encoding value="UTF-8"/>
+                <file relative-to="jboss.server.log.dir" path="integration-test-server.log"/>
+                <formatter>
+                    <named-formatter name="COLOR-PATTERN"/>
+                </formatter>
+                <append value="true"/>
+            </file-handler>
+
+            <logger category="uk.gov.justice">
                 <level name="DEBUG"/>
             </logger>
+            <logger category="com.arjuna.ats.jta">
+                <level name="INFO"/>
+            </logger>
+            <logger category="org.jboss.as.jpa">
+                <level name="INFO"/>
+            </logger>
+            <logger category="org.jboss">
+                <level name="WARN"/>
+            </logger>
             <logger category="sun.rmi">
+                <level name="WARN"/>
+            </logger>
+            <logger category="org.hibernate">
+                <level name="WARN"/>
+            </logger>
+            <logger category="org.apache.activemq">
                 <level name="WARN"/>
             </logger>
             <root-logger>
                 <level name="DEBUG"/>
                 <handlers>
                     <handler name="CONSOLE"/>
+                    <handler name="FILE"/>
                 </handlers>
             </root-logger>
             <formatter name="PATTERN">
@@ -93,46 +116,53 @@
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:bean-validation:1.0"/>
         <subsystem xmlns="urn:jboss:domain:datasources:4.0">
-            <datasources>
-                <datasource jndi-name="java:/app/replay-tool/DS.eventstore"
-                            pool-name="DS.replay-tool.eventstore" enabled="true"
-                            use-java-context="true">
-                    <connection-url>jdbc:h2:tcp://localhost:8092/mem:eventstore;MVCC=true</connection-url>
-                    <driver>h2</driver>
-                    <pool>
-                        <min-pool-size>3</min-pool-size>
-                        <max-pool-size>3</max-pool-size>
-                        <prefill>true</prefill>
-                    </pool>
-                    <security>
-                        <user-name>sa</user-name>
-                        <password>sa</password>
-                    </security>
-                </datasource>
 
-                <datasource jndi-name="java:/DS.replay"
-                            pool-name="DS.replay-pool" enabled="true"
-                            use-java-context="true">
-                    <connection-url>jdbc:h2:tcp://localhost:8092/mem:viewstore;MVCC=true</connection-url>
+            <datasources>
+
+                <xa-datasource jndi-name="java:/app/replay-tool/DS.eventstore" pool-name="DS.replay-tool.eventstore">
                     <driver>h2</driver>
-                    <pool>
+                    <xa-datasource-property name="URL">jdbc:h2:tcp://localhost:8092/mem:eventstore;MVCC=true</xa-datasource-property>
+                    <xa-pool>
                         <min-pool-size>3</min-pool-size>
-                        <max-pool-size>3</max-pool-size>
+                        <max-pool-size>1000</max-pool-size>
                         <prefill>true</prefill>
-                    </pool>
+                    </xa-pool>
                     <security>
                         <user-name>sa</user-name>
                         <password>sa</password>
                     </security>
-                </datasource>
-                <datasource jndi-name="java:jboss/datasources/ExampleDS" pool-name="ExampleDS" enabled="true" use-java-context="true">
-                    <connection-url>jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</connection-url>
+                </xa-datasource>
+
+                <xa-datasource jndi-name="java:/DS.replay" pool-name="DS.replay-pool">
                     <driver>h2</driver>
+                    <xa-datasource-property name="URL">jdbc:h2:tcp://localhost:8092/mem:viewstore;MVCC=true</xa-datasource-property>
+                    <xa-pool>
+                        <min-pool-size>3</min-pool-size>
+                        <max-pool-size>1000</max-pool-size>
+                        <prefill>true</prefill>
+                    </xa-pool>
                     <security>
                         <user-name>sa</user-name>
                         <password>sa</password>
                     </security>
-                </datasource>
+                </xa-datasource>
+
+                <xa-datasource jndi-name="java:jboss/datasources/ExampleDS" pool-name="ExampleDS">
+                    <driver>h2</driver>
+                    <xa-datasource-property name="URL">jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</xa-datasource-property>
+                    <xa-pool>
+                        <min-pool-size>3</min-pool-size>
+                        <max-pool-size>1000</max-pool-size>
+                        <prefill>true</prefill>
+                    </xa-pool>
+                    <security>
+                        <user-name>sa</user-name>
+                        <password>sa</password>
+                    </security>
+                </xa-datasource>
+
+
+
                 <drivers>
                     <driver name="h2" module="com.h2database.h2">
                         <xa-datasource-class>org.h2.jdbcx.JdbcDataSource</xa-datasource-class>

@@ -1,5 +1,6 @@
 package uk.gov.justice.framework.tools.replay;
 
+import static java.util.stream.Collectors.toList;
 import static org.wildfly.swarm.bootstrap.Main.MAIN_PROCESS_FILE;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.JdbcEventRepository;
@@ -8,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Deque;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -33,12 +35,14 @@ public class StartReplay implements ManagedTaskListener {
     private Logger logger;
 
     @Resource
-    private ManagedExecutorService executorService;
+    private ManagedExecutorService managedExecutorService;
 
     @Inject
     private JdbcEventRepository jdbcEventRepository;
+
     @Inject
     private AsyncStreamDispatcher asyncStreamDispatcher;
+
     private Deque<Future<UUID>> outstandingTasks = new LinkedBlockingDeque<>();
 
     private boolean allTasksCreated = false;
@@ -47,11 +51,13 @@ public class StartReplay implements ManagedTaskListener {
     void go() {
         logger.info("-------------- Invoke Event Streams Replay-------------!");
         checkForMainProcessFile();
-        jdbcEventRepository.getStreamOfAllActiveEventStreams()
-                .forEach(eventStream -> {
-                    StreamDispatchTask dispatchTask = new StreamDispatchTask(eventStream, asyncStreamDispatcher, this);
-                    outstandingTasks.add(executorService.submit(dispatchTask));
-                });
+
+        final List<UUID> activeStreamIds = jdbcEventRepository.getAllActiveStreamIds().collect(toList());
+        activeStreamIds.forEach(uuid -> {
+            final StreamDispatchTask dispatchTask = new StreamDispatchTask(uuid, asyncStreamDispatcher, this);
+            outstandingTasks.add(managedExecutorService.submit(dispatchTask));
+        });
+
         allTasksCreated = true;
         if (outstandingTasks.isEmpty()) shutdown();
         logger.info("-------------- Invocation of Event Streams Replay Completed --------------");

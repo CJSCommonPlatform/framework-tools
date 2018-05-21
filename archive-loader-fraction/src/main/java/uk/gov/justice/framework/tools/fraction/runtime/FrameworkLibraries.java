@@ -1,11 +1,11 @@
 package uk.gov.justice.framework.tools.fraction.runtime;
 
+import static java.lang.String.format;
+import static org.wildfly.swarm.Swarm.artifact;
+
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ArchivePath;
 import org.jboss.shrinkwrap.api.Filter;
-
-import static java.lang.String.format;
-import static org.wildfly.swarm.Swarm.artifact;
 
 /**
  * Temporary solution to avoid conflicts between framework libraries brought in by the listener war

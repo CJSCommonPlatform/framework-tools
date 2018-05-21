@@ -69,19 +69,42 @@
                     <named-formatter name="COLOR-PATTERN"/>
                 </formatter>
             </console-handler>
-            <logger category="com.arjuna">
-                <level name="WARN"/>
-            </logger>
-            <logger category="org.jboss.as.config">
+
+            <file-handler name="FILE" autoflush="true">
+                <encoding value="UTF-8"/>
+                <file relative-to="jboss.server.log.dir" path="integration-test-server.log"/>
+                <formatter>
+                    <named-formatter name="COLOR-PATTERN"/>
+                </formatter>
+                <append value="true"/>
+            </file-handler>
+
+            <logger category="uk.gov.justice">
                 <level name="DEBUG"/>
             </logger>
+            <logger category="com.arjuna.ats.jta">
+                <level name="INFO"/>
+            </logger>
+            <logger category="org.jboss.as.jpa">
+                <level name="INFO"/>
+            </logger>
+            <logger category="org.jboss">
+                <level name="WARN"/>
+            </logger>
             <logger category="sun.rmi">
+                <level name="WARN"/>
+            </logger>
+            <logger category="org.hibernate">
+                <level name="WARN"/>
+            </logger>
+            <logger category="org.apache.activemq">
                 <level name="WARN"/>
             </logger>
             <root-logger>
                 <level name="DEBUG"/>
                 <handlers>
                     <handler name="CONSOLE"/>
+                    <handler name="FILE"/>
                 </handlers>
             </root-logger>
             <formatter name="PATTERN">
