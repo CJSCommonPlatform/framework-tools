@@ -21,6 +21,7 @@ import java.util.stream.Stream;
 
 import javax.enterprise.concurrent.ManagedExecutorService;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -28,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
+@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class StartReplayTest {
 

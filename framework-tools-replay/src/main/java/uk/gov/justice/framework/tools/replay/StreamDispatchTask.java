@@ -15,10 +15,16 @@ import java.util.stream.Stream;
 public class StreamDispatchTask implements Callable<UUID>, ManagedTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamDispatchTask.class);
     private final Stream<JsonEnvelope> stream;
+    private final UUID streamId;
     private final AsyncStreamDispatcher dispatcher;
     private final ManagedTaskListener dispatchListener;
 
-    public StreamDispatchTask(final Stream<JsonEnvelope> stream, final AsyncStreamDispatcher dispatcher, final ManagedTaskListener dispatchListener) {
+    public StreamDispatchTask(
+            final UUID streamId,
+            final Stream<JsonEnvelope> stream,
+            final AsyncStreamDispatcher dispatcher,
+            final ManagedTaskListener dispatchListener) {
+        this.streamId = streamId;
         this.dispatcher = dispatcher;
         this.dispatchListener = dispatchListener;
         this.stream = stream;
@@ -27,7 +33,8 @@ public class StreamDispatchTask implements Callable<UUID>, ManagedTask {
     @Override
     public UUID call() {
         LOGGER.debug("---------- Dispatching stream -------------");
-        return dispatcher.dispatch(this.stream);
+
+        return dispatcher.dispatch(streamId);
     }
 
     @Override
