@@ -1,5 +1,6 @@
 package uk.gov.justice.framework.tools.replay;
 
+import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.times;
@@ -8,7 +9,6 @@ import static org.mockito.Mockito.when;
 import static org.wildfly.swarm.bootstrap.Main.MAIN_PROCESS_FILE;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.JdbcEventRepository;
-import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,18 +33,22 @@ public class StartReplayTest {
 
     @Mock
     private JdbcEventRepository jdbcEventRepository;
+
     @Mock
     private ManagedExecutorService executorService;
+
     @Mock
     private StreamDispatchTask dispatchTask;
+
     @Mock
     private Throwable throwable;
+
     @Mock
     private Future<UUID> dispatchTaskFuture;
-    @Mock
-    private Stream<JsonEnvelope> mockStream;
+
     @Mock
     private Deque<UUID> outstandingTasks;
+
     @Mock
     private Logger logger;
 
@@ -53,10 +57,10 @@ public class StartReplayTest {
 
     @Test
     public void shouldDispatchStreams() throws IOException {
-        final Stream<Stream<JsonEnvelope>> streamOfStreams = Stream.of(mockStream, mockStream);
+        final Stream<UUID> activeStreamIds = Stream.of(randomUUID(), randomUUID());
         createMainProcessFile();
 
-        when(jdbcEventRepository.getStreamOfAllActiveEventStreams()).thenReturn(streamOfStreams);
+        when(jdbcEventRepository.getAllActiveStreamIds()).thenReturn(activeStreamIds);
         when(executorService.submit(any(StreamDispatchTask.class))).thenReturn(dispatchTaskFuture);
         when(outstandingTasks.isEmpty()).thenReturn(true);
 
@@ -68,9 +72,9 @@ public class StartReplayTest {
 
     @Test
     public void shouldDispatchStreamsAndShutdownByForce() {
-        final Stream<Stream<JsonEnvelope>> streamOfStreams = Stream.of(mockStream, mockStream);
+        final Stream<UUID> activeStreamIds = Stream.of(randomUUID(), randomUUID());
 
-        when(jdbcEventRepository.getStreamOfAllActiveEventStreams()).thenReturn(streamOfStreams);
+        when(jdbcEventRepository.getAllActiveStreamIds()).thenReturn(activeStreamIds);
         when(executorService.submit(any(StreamDispatchTask.class))).thenReturn(dispatchTaskFuture);
         when(outstandingTasks.isEmpty()).thenReturn(true);
 

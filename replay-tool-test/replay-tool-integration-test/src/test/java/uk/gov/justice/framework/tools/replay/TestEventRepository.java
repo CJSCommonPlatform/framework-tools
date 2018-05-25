@@ -1,9 +1,8 @@
 package uk.gov.justice.framework.tools.replay;
 
 
-import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.LongStream.range;
+import static java.util.stream.LongStream.rangeClosed;
 import static uk.gov.justice.framework.tools.replay.DatabaseUtils.initEventStoreDb;
 import static uk.gov.justice.services.test.utils.common.reflection.ReflectionUtils.setField;
 import static uk.gov.justice.services.test.utils.core.messaging.JsonEnvelopeBuilder.envelope;
@@ -52,8 +51,8 @@ public class TestEventRepository extends EventJdbcRepository {
         return datasource;
     }
 
-    public List<String> insertEventData(final UUID streamId) {
-        return range(1L, 6L)
+    public List<String> insertEventData(final UUID streamId, final int numberOfEventsToInsert) {
+        return rangeClosed(1L, numberOfEventsToInsert)
                 .mapToObj(sequenceId -> insertEvent(streamId, sequenceId))
                 .collect(toList());
     }
@@ -61,7 +60,6 @@ public class TestEventRepository extends EventJdbcRepository {
     private String insertEvent(final UUID streamId, final long sequenceId) {
         final Event event = eventFrom("framework.example-test", streamId, sequenceId);
 
-        System.out.println(format("Inserting event-stream with id %s", event.getId()));
 
         try {
             insert(event);

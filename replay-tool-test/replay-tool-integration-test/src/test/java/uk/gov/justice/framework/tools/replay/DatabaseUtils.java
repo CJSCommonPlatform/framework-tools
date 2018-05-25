@@ -1,12 +1,8 @@
 package uk.gov.justice.framework.tools.replay;
 
 
-import liquibase.Liquibase;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.resource.ClassLoaderResourceAccessor;
-import org.apache.commons.dbcp2.BasicDataSource;
+import static java.lang.String.format;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,7 +10,12 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
-import static java.lang.String.format;
+import javax.sql.DataSource;
+
+import liquibase.Liquibase;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.resource.ClassLoaderResourceAccessor;
+import org.apache.commons.dbcp2.BasicDataSource;
 
 public class DatabaseUtils {
 

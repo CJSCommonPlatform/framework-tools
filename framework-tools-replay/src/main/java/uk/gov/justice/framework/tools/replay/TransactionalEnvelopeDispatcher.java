@@ -30,6 +30,4 @@ public class TransactionalEnvelopeDispatcher {
     public void dispatch(JsonEnvelope envelope) {
         dispatcher.dispatch(envelope);
     }
-
-
 }

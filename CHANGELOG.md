@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [4.2.0] - 2018-05-25
+
+### Fixed
+- Fixed transaction timeout when replaying large numbers of events
+
 ## [4.1.0] -2018-05-01
 
 ### Changed

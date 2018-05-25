@@ -1,10 +1,10 @@
 package uk.gov.justice.framework.tools.replay;
 
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-
-import static org.junit.Assert.fail;
 
 /**
  * Loads test.properties files from classpath and makes property values available through an

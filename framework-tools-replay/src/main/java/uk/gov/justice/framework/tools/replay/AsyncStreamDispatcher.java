@@ -1,26 +1,23 @@
 package uk.gov.justice.framework.tools.replay;
 
-import static org.apache.commons.lang3.StringUtils.substringBefore;
+import static java.util.stream.IntStream.range;
+import static javax.ejb.TransactionAttributeType.NOT_SUPPORTED;
+import static javax.ejb.TransactionAttributeType.REQUIRED;
 
 import uk.gov.justice.services.core.handler.exception.MissingHandlerException;
 import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamStatus;
 import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamStatusJdbcRepository;
 import uk.gov.justice.services.messaging.JsonEnvelope;
-import uk.gov.justice.services.messaging.Metadata;
 
+import java.util.List;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
 import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Stateless
 public class AsyncStreamDispatcher {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncStreamDispatcher.class);
 
     @Inject
     private TransactionalEnvelopeDispatcher envelopeDispatcher;
@@ -28,58 +25,47 @@ public class AsyncStreamDispatcher {
     @Inject
     private StreamStatusJdbcRepository streamStatusRepository;
 
-    public UUID dispatch(final Stream<JsonEnvelope> stream) {
-        final int[] noOfProcessedElements = {0};
-        final JsonEnvelope[] envelopes = {null};
+    @Inject
+    private StreamEnvelopeProvider streamEnvelopeProvider;
 
-        try (final Stream<JsonEnvelope> stream1 = stream) {
-            stream1.forEach(envelope -> {
-                if (firstElement(noOfProcessedElements)) {
-                    LOGGER.info("Starting processing of stream: {}", streamIdOf(envelope));
-                }
-                try {
-                    envelopeDispatcher.dispatch(envelope);
-                } catch (MissingHandlerException ex) {
-                    final Metadata metadata = envelope.metadata();
-                    LOGGER.warn("Missing handler for stream Id: {}, event name: {}, version: {}", metadata.streamId().get(),
-                            metadata.name(), metadata.version().get());
-                }
-                noOfProcessedElements[0]++;
-                if (shouldLogProgress(noOfProcessedElements)) {
-                    LOGGER.info("Processed {} elements of stream: {}", noOfProcessedElements[0], streamIdOf(envelope));
-                }
-                envelopes[0] = envelope;
-            });
-            final UUID streamId = streamIdOf(envelopes[0]);
-            streamStatusRepository.insert(new StreamStatus(streamId, versionOf(envelopes[0]), sourceOf(envelopes[0])));
-            LOGGER.info("Finished processing of stream: {}, elements processed: {}", streamId, noOfProcessedElements[0]);
-            return streamId;
+    @Inject
+    private StreamStatusFactory streamStatusFactory;
+
+    @Inject
+    private ProgressLogger progressLogger;
+
+    @TransactionAttribute(NOT_SUPPORTED)
+    public UUID dispatch(final UUID streamId) {
+
+        progressLogger.logStart(streamId);
+
+        final List<JsonEnvelope> envelopes = streamEnvelopeProvider.getStreamAsList(streamId);
+
+        range(0, envelopes.size())
+                .forEach(index -> dispatchEnvelope(
+                        envelopes.get(index),
+                        streamId,
+                        index));
+
+        insertStreamStatus(streamStatusFactory.create(envelopes, streamId));
+
+        progressLogger.logCompletion(streamId);
+
+        return streamId;
+    }
+
+    @TransactionAttribute(REQUIRED)
+    private void dispatchEnvelope(final JsonEnvelope jsonEnvelope, final UUID streamId, final int index) {
+        try {
+            envelopeDispatcher.dispatch(jsonEnvelope);
+            progressLogger.logSuccess(streamId, index);
+        } catch (final MissingHandlerException ex) {
+            progressLogger.logFailure(streamId, jsonEnvelope);
         }
     }
 
-    private UUID streamIdOf(final JsonEnvelope envelope) {
-        return envelope
-                .metadata()
-                .streamId()
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Stream id not found in the envelope: %s", envelope.toString())));
-    }
-
-    private Long versionOf(final JsonEnvelope envelope) {
-        return envelope
-                .metadata()
-                .version()
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Version not found in the envelope: %s", envelope.toString())));
-    }
-
-    private String sourceOf(final JsonEnvelope envelope) {
-        return substringBefore(envelope.metadata().name(), ".");
-    }
-
-    private boolean shouldLogProgress(final int[] i) {
-        return i[0] % 100 == 0;
-    }
-
-    private boolean firstElement(final int[] i) {
-        return i[0] == 0;
+    @TransactionAttribute(REQUIRED)
+    private void insertStreamStatus(final StreamStatus streamStatus) {
+        streamStatusRepository.insert(streamStatus);
     }
 }
