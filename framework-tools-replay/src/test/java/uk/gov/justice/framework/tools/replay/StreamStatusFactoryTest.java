@@ -1,7 +1,5 @@
 package uk.gov.justice.framework.tools.replay;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.UUID.randomUUID;
@@ -39,14 +37,10 @@ public class StreamStatusFactoryTest {
         final Optional<Long> version = of(29384L);
         final UUID streamId = randomUUID();
         final UUID envelopeId_1 = randomUUID();
-        final UUID envelopeId_2 = randomUUID();
 
         final JsonEnvelope jsonEnvelope_1 = anEnvelope(commandName, version, envelopeId_1, streamId);
-        final JsonEnvelope jsonEnvelope_2 = anEnvelope(commandName, version, envelopeId_2, streamId);
 
-        final List<JsonEnvelope> envelopes = asList(jsonEnvelope_1, jsonEnvelope_2);
-
-        final StreamStatus streamStatus = streamStatusFactory.create(envelopes, streamId);
+        final StreamStatus streamStatus = streamStatusFactory.create(jsonEnvelope_1, streamId);
 
         assertThat(streamStatus.getSource(), is("example-command-api"));
         assertThat(streamStatus.getStreamId(), is(streamId));
@@ -63,10 +57,8 @@ public class StreamStatusFactoryTest {
 
         final JsonEnvelope jsonEnvelope = anEnvelope(commandName, version, envelopeId, streamId);
 
-        final List<JsonEnvelope> envelopes = singletonList(jsonEnvelope);
-
         try {
-            streamStatusFactory.create(envelopes, streamId);
+            streamStatusFactory.create(jsonEnvelope, streamId);
             fail();
         } catch (final IllegalArgumentException expected) {
             final String message = "Version not found in the envelope: " +

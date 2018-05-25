@@ -1,7 +1,5 @@
 package uk.gov.justice.framework.tools.replay;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -15,8 +13,8 @@ import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamS
 import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamStatusJdbcRepository;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
-import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +26,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class AsyncStreamDispatcherTest {
 
+    private static final int PAGE_SIZE = 1000;
+
     @Mock
     private TransactionalEnvelopeDispatcher envelopeDispatcher;
 
@@ -35,10 +35,10 @@ public class AsyncStreamDispatcherTest {
     private StreamStatusJdbcRepository streamStatusRepository;
 
     @Mock
-    private StreamEnvelopeProvider streamEnvelopeProvider;
+    private StreamStatusFactory streamStatusFactory;
 
     @Mock
-    private StreamStatusFactory streamStatusFactory;
+    private JsonEnvelopeJdbcRepository jsonEnvelopeJdbcRepository;
 
     @Mock
     private ProgressLogger progressLogger;
@@ -53,12 +53,14 @@ public class AsyncStreamDispatcherTest {
         final JsonEnvelope jsonEnvelope_1 = mock(JsonEnvelope.class);
         final JsonEnvelope jsonEnvelope_2 = mock(JsonEnvelope.class);
         final JsonEnvelope jsonEnvelope_3 = mock(JsonEnvelope.class);
-        final List<JsonEnvelope> envelopes = asList(jsonEnvelope_1, jsonEnvelope_2, jsonEnvelope_3);
 
+        final Stream<JsonEnvelope> envelopeStream = Stream.of(jsonEnvelope_1, jsonEnvelope_2, jsonEnvelope_3);
         final StreamStatus streamStatus = mock(StreamStatus.class);
 
-        when(streamEnvelopeProvider.getStreamAsList(streamId)).thenReturn(envelopes);
-        when(streamStatusFactory.create(envelopes, streamId)).thenReturn(streamStatus);
+        when(jsonEnvelopeJdbcRepository.getLatestSequenceIdForStream(streamId)).thenReturn(3L);
+        when(jsonEnvelopeJdbcRepository.forward(streamId, 1L, PAGE_SIZE)).thenReturn(envelopeStream);
+        when(jsonEnvelopeJdbcRepository.head(streamId)).thenReturn(jsonEnvelope_3);
+        when(streamStatusFactory.create(jsonEnvelope_3, streamId)).thenReturn(streamStatus);
 
         assertThat(asyncStreamDispatcher.dispatch(streamId), is(streamId));
 
@@ -66,11 +68,11 @@ public class AsyncStreamDispatcherTest {
 
         inOrder.verify(progressLogger).logStart(streamId);
         inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope_1);
-        inOrder.verify(progressLogger).logSuccess(streamId, 0);
+        inOrder.verify(progressLogger).logSuccess(streamId, jsonEnvelope_1);
         inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope_2);
-        inOrder.verify(progressLogger).logSuccess(streamId, 1);
+        inOrder.verify(progressLogger).logSuccess(streamId, jsonEnvelope_2);
         inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope_3);
-        inOrder.verify(progressLogger).logSuccess(streamId, 2);
+        inOrder.verify(progressLogger).logSuccess(streamId, jsonEnvelope_3);
         inOrder.verify(streamStatusRepository).insert(streamStatus);
         inOrder.verify(progressLogger).logCompletion(streamId);
     }
@@ -83,13 +85,14 @@ public class AsyncStreamDispatcherTest {
         final UUID streamId = randomUUID();
 
         final JsonEnvelope jsonEnvelope = mock(JsonEnvelope.class);
-        final List<JsonEnvelope> envelopes = singletonList(jsonEnvelope);
+        final Stream<JsonEnvelope> envelopeStream = Stream.of(jsonEnvelope);
 
         final StreamStatus streamStatus = mock(StreamStatus.class);
 
-        when(streamEnvelopeProvider.getStreamAsList(streamId)).thenReturn(envelopes);
+        when(jsonEnvelopeJdbcRepository.getLatestSequenceIdForStream(streamId)).thenReturn(1L);
+        when(jsonEnvelopeJdbcRepository.forward(streamId, 1L, PAGE_SIZE)).thenReturn(envelopeStream);
         doThrow(missingHandlerException).when(envelopeDispatcher).dispatch(jsonEnvelope);
-        when(streamStatusFactory.create(envelopes, streamId)).thenReturn(streamStatus);
+        when(streamStatusFactory.create(jsonEnvelope, streamId)).thenReturn(streamStatus);
 
         assertThat(asyncStreamDispatcher.dispatch(streamId), is(streamId));
 

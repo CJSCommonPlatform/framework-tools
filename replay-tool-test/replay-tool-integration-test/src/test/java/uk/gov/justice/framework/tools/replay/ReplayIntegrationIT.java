@@ -2,6 +2,7 @@ package uk.gov.justice.framework.tools.replay;
 
 
 import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
@@ -16,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,7 +33,7 @@ public class ReplayIntegrationIT {
     private static final String PROCESS_FILE_LOCATION = TEST_PROPERTIES.value("process.file.location");
 
     private static final int EXECUTION_TIMEOUT_IN_SECONDS = 60;
-    private static final int NUMBER_OF_EVENTS_TO_INSERT = 500;
+    private static final int NUMBER_OF_EVENTS_TO_INSERT = 100;
 
     private static TestEventRepository EVENT_LOG_REPOSITORY;
     private static TestEventStreamJdbcRepository EVENT_STREAM_JDBC_REPOSITORY;
@@ -56,11 +56,16 @@ public class ReplayIntegrationIT {
 
         System.out.println(format("Inserting %d events with timeout of %d seconds", NUMBER_OF_EVENTS_TO_INSERT, EXECUTION_TIMEOUT_IN_SECONDS));
 
-        final List<String> insertedEvents = new ArrayList<>(insertEventData(randomUUID(), NUMBER_OF_EVENTS_TO_INSERT));
+        final UUID streamId = randomUUID();
+
+        final List<String> insertedEvents = insertEventData(streamId, NUMBER_OF_EVENTS_TO_INSERT);
 
         System.out.println(format("%d events inserted", NUMBER_OF_EVENTS_TO_INSERT));
 
-        runCommand(createCommandToExecuteReplay());
+        final String command = createCommandToExecuteReplay();
+
+        runCommand(command);
+
         final List<String> events = viewStoreEvents(viewStoreDataSource);
 
         System.out.println(events.size() + " events of " + NUMBER_OF_EVENTS_TO_INSERT + " were inserted into the view store");
@@ -69,6 +74,7 @@ public class ReplayIntegrationIT {
         assertTrue(insertedEvents.isEmpty());
     }
 
+    @SuppressWarnings("SameParameterValue")
     private List<String> insertEventData(final UUID streamId, final int numberOfEventsToInsert) {
         EVENT_STREAM_JDBC_REPOSITORY.insert(streamId);
         return EVENT_LOG_REPOSITORY.insertEventData(streamId, numberOfEventsToInsert);
@@ -86,7 +92,7 @@ public class ReplayIntegrationIT {
         System.out.println("Process started, waiting for completion..");
 
 
-        if(SHOULD_LOG_WILDFLY_PROCESS_TO_CONSOLE) {
+        if (SHOULD_LOG_WILDFLY_PROCESS_TO_CONSOLE) {
             logWildflyProcessToConsole(exec);
         }
 
@@ -114,7 +120,7 @@ public class ReplayIntegrationIT {
                 final InputStream inputStream = exec.getInputStream();
                 final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
                 String line;
-                while ( (line = bufferedReader.readLine()) != null) {
+                while ((line = bufferedReader.readLine()) != null) {
                     System.out.println(line);
                 }
             } catch (final IOException e) {
@@ -156,7 +162,7 @@ public class ReplayIntegrationIT {
     private String getResource(final String pattern) {
         final File dir = new File(this.getClass().getClassLoader().getResource("").getPath());
         final FileFilter fileFilter = new WildcardFileFilter(pattern);
-        return dir.listFiles(fileFilter)[0].getAbsolutePath();
+        return requireNonNull(dir.listFiles(fileFilter))[0].getAbsolutePath();
     }
 
     private void logWildflyProcessToConsole(final Process exec) {
@@ -165,11 +171,11 @@ public class ReplayIntegrationIT {
                 final InputStream inputStream = exec.getInputStream();
                 final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
                 String line;
-                while ( (line = bufferedReader.readLine()) != null) {
+                while ((line = bufferedReader.readLine()) != null) {
                     System.out.println(line);
                 }
             } catch (IOException e) {
-                throw new RuntimeException("Ooops", e);
+                throw new RuntimeException("Failed to read InputStream from external process", e);
             }
         }).start();
     }

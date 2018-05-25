@@ -1,6 +1,5 @@
 package uk.gov.justice.framework.tools.replay;
 
-import static java.util.stream.IntStream.range;
 import static javax.ejb.TransactionAttributeType.NOT_SUPPORTED;
 import static javax.ejb.TransactionAttributeType.REQUIRED;
 
@@ -9,8 +8,8 @@ import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamS
 import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamStatusJdbcRepository;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
-import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -19,6 +18,9 @@ import javax.inject.Inject;
 @Stateless
 public class AsyncStreamDispatcher {
 
+    private static final int PAGE_SIZE = 1000;
+    private static final long FIRST_POSITION = 1L;
+
     @Inject
     private TransactionalEnvelopeDispatcher envelopeDispatcher;
 
@@ -26,10 +28,10 @@ public class AsyncStreamDispatcher {
     private StreamStatusJdbcRepository streamStatusRepository;
 
     @Inject
-    private StreamEnvelopeProvider streamEnvelopeProvider;
+    private StreamStatusFactory streamStatusFactory;
 
     @Inject
-    private StreamStatusFactory streamStatusFactory;
+    private JsonEnvelopeJdbcRepository jsonEnvelopeJdbcRepository;
 
     @Inject
     private ProgressLogger progressLogger;
@@ -39,26 +41,37 @@ public class AsyncStreamDispatcher {
 
         progressLogger.logStart(streamId);
 
-        final List<JsonEnvelope> envelopes = streamEnvelopeProvider.getStreamAsList(streamId);
+        replayAllEventsOf(streamId);
 
-        range(0, envelopes.size())
-                .forEach(index -> dispatchEnvelope(
-                        envelopes.get(index),
-                        streamId,
-                        index));
-
-        insertStreamStatus(streamStatusFactory.create(envelopes, streamId));
+        insertStreamStatus(streamStatusFactory.create(
+                jsonEnvelopeJdbcRepository.head(streamId),
+                streamId));
 
         progressLogger.logCompletion(streamId);
 
         return streamId;
     }
 
+    private void replayAllEventsOf(final UUID streamId) {
+        final long lastPosition = jsonEnvelopeJdbcRepository.getLatestSequenceIdForStream(streamId);
+
+        for (long position = FIRST_POSITION; position <= lastPosition; position = position + PAGE_SIZE) {
+            replayBatchOfEvents(streamId, position);
+        }
+    }
+
+
     @TransactionAttribute(REQUIRED)
-    private void dispatchEnvelope(final JsonEnvelope jsonEnvelope, final UUID streamId, final int index) {
+    private void replayBatchOfEvents(final UUID streamId, final long position) {
+        try (final Stream<JsonEnvelope> eventStream = jsonEnvelopeJdbcRepository.forward(streamId, position, PAGE_SIZE)) {
+            eventStream.forEach(jsonEnvelope -> dispatchEnvelope(jsonEnvelope, streamId));
+        }
+    }
+
+    private void dispatchEnvelope(final JsonEnvelope jsonEnvelope, final UUID streamId) {
         try {
             envelopeDispatcher.dispatch(jsonEnvelope);
-            progressLogger.logSuccess(streamId, index);
+            progressLogger.logSuccess(streamId, jsonEnvelope);
         } catch (final MissingHandlerException ex) {
             progressLogger.logFailure(streamId, jsonEnvelope);
         }

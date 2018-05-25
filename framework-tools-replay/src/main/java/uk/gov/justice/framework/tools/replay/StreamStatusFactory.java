@@ -6,13 +6,11 @@ import static org.apache.commons.lang3.StringUtils.substringBefore;
 import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamStatus;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
-import java.util.List;
 import java.util.UUID;
 
 public class StreamStatusFactory {
 
-    public StreamStatus create(final List<JsonEnvelope> envelopes, final UUID streamId) {
-        final JsonEnvelope jsonEnvelope = envelopes.get(0);
+    public StreamStatus create(final JsonEnvelope jsonEnvelope, final UUID streamId) {
         final Long version = getVersionFrom(jsonEnvelope);
         final String source = getSourceFrom(jsonEnvelope);
 
