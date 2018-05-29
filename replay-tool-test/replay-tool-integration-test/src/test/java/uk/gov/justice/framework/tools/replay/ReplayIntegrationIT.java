@@ -32,7 +32,7 @@ public class ReplayIntegrationIT {
     private static final TestProperties TEST_PROPERTIES = new TestProperties("test.properties");
     private static final String PROCESS_FILE_LOCATION = TEST_PROPERTIES.value("process.file.location");
 
-    private static final int EXECUTION_TIMEOUT_IN_SECONDS = 60 * 10;
+    private static final int EXECUTION_TIMEOUT_IN_SECONDS = 60;
     private static final int NUMBER_OF_EVENTS_TO_INSERT = 500;
 
     private static TestEventRepository EVENT_LOG_REPOSITORY;
