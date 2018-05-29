@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [4.2.1] - 2018-05-29
+
+### Fixed
+- Weld issues when starting Swarm
+
 ## [4.2.0] - 2018-05-25
 
 ### Fixed
