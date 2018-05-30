@@ -15,6 +15,9 @@ public class ProgressLogger {
     private ProgressChecker progressChecker;
 
     @Inject
+    private JsonEnvelopeUtil jsonEnvelopeUtil;
+
+    @Inject
     private Logger logger;
 
     private int sucessCount = 0;
@@ -23,11 +26,11 @@ public class ProgressLogger {
         logger.info("Starting processing of stream: {}", streamId);
     }
 
-    public void logSuccess(final UUID streamId, final int index) {
+    public void logSuccess(final UUID streamId, final JsonEnvelope jsonEnvelope) {
 
         sucessCount++;
 
-        if (progressChecker.shouldLogProgress(index)) {
+        if (progressChecker.shouldLogProgress(jsonEnvelopeUtil.versionOf(jsonEnvelope))) {
             logger.info("Processed {} element(s) of stream: {}", sucessCount, streamId);
         }
     }
