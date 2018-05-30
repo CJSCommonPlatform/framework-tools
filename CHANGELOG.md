@@ -5,6 +5,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [4.3.0] - 2018-05-30
+
 ### Changed
 - Events are loaded into memory in batches of 1000 at each time
 
