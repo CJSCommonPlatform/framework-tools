@@ -44,7 +44,7 @@ public class AsyncStreamDispatcher {
         replayAllEventsOf(streamId);
 
         insertStreamStatus(streamStatusFactory.create(
-                jsonEnvelopeJdbcRepository.head(streamId),
+                jsonEnvelopeJdbcRepository.getLatestEvent(streamId),
                 streamId));
 
         progressLogger.logCompletion(streamId);
@@ -53,7 +53,7 @@ public class AsyncStreamDispatcher {
     }
 
     private void replayAllEventsOf(final UUID streamId) {
-        final long lastPosition = jsonEnvelopeJdbcRepository.getLatestSequenceIdForStream(streamId);
+        final long lastPosition = jsonEnvelopeJdbcRepository.getCurrentVersion(streamId);
 
         for (long position = FIRST_POSITION; position <= lastPosition; position = position + PAGE_SIZE) {
             replayBatchOfEvents(streamId, position);
@@ -63,7 +63,7 @@ public class AsyncStreamDispatcher {
 
     @TransactionAttribute(REQUIRED)
     private void replayBatchOfEvents(final UUID streamId, final long position) {
-        try (final Stream<JsonEnvelope> eventStream = jsonEnvelopeJdbcRepository.forward(streamId, position, PAGE_SIZE)) {
+        try (final Stream<JsonEnvelope> eventStream = jsonEnvelopeJdbcRepository.pageEventStream(streamId, position, PAGE_SIZE)) {
             eventStream.forEach(jsonEnvelope -> dispatchEnvelope(jsonEnvelope, streamId));
         }
     }

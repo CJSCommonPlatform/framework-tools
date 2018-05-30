@@ -57,9 +57,9 @@ public class AsyncStreamDispatcherTest {
         final Stream<JsonEnvelope> envelopeStream = Stream.of(jsonEnvelope_1, jsonEnvelope_2, jsonEnvelope_3);
         final StreamStatus streamStatus = mock(StreamStatus.class);
 
-        when(jsonEnvelopeJdbcRepository.getLatestSequenceIdForStream(streamId)).thenReturn(3L);
-        when(jsonEnvelopeJdbcRepository.forward(streamId, 1L, PAGE_SIZE)).thenReturn(envelopeStream);
-        when(jsonEnvelopeJdbcRepository.head(streamId)).thenReturn(jsonEnvelope_3);
+        when(jsonEnvelopeJdbcRepository.getCurrentVersion(streamId)).thenReturn(3L);
+        when(jsonEnvelopeJdbcRepository.pageEventStream(streamId, 1L, PAGE_SIZE)).thenReturn(envelopeStream);
+        when(jsonEnvelopeJdbcRepository.getLatestEvent(streamId)).thenReturn(jsonEnvelope_3);
         when(streamStatusFactory.create(jsonEnvelope_3, streamId)).thenReturn(streamStatus);
 
         assertThat(asyncStreamDispatcher.dispatch(streamId), is(streamId));
@@ -89,8 +89,8 @@ public class AsyncStreamDispatcherTest {
 
         final StreamStatus streamStatus = mock(StreamStatus.class);
 
-        when(jsonEnvelopeJdbcRepository.getLatestSequenceIdForStream(streamId)).thenReturn(1L);
-        when(jsonEnvelopeJdbcRepository.forward(streamId, 1L, PAGE_SIZE)).thenReturn(envelopeStream);
+        when(jsonEnvelopeJdbcRepository.getCurrentVersion(streamId)).thenReturn(1L);
+        when(jsonEnvelopeJdbcRepository.pageEventStream(streamId, 1L, PAGE_SIZE)).thenReturn(envelopeStream);
         doThrow(missingHandlerException).when(envelopeDispatcher).dispatch(jsonEnvelope);
         when(streamStatusFactory.create(jsonEnvelope, streamId)).thenReturn(streamStatus);
 
