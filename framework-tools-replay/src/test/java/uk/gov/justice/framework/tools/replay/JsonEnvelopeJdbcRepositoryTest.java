@@ -1,6 +1,7 @@
 package uk.gov.justice.framework.tools.replay;
 
 import static java.util.Arrays.asList;
+import static java.util.UUID.fromString;
 import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.of;
@@ -28,6 +29,8 @@ import static org.mockito.Mockito.*;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.source.core.EventSource;
+import uk.gov.justice.services.eventsourcing.source.core.EventStream;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.Arrays;
@@ -43,81 +46,86 @@ import javax.inject.Inject;
 public class JsonEnvelopeJdbcRepositoryTest {
 
     @Mock
-    private EventJdbcRepository eventJdbcRepository;
-
-    @Mock
-    private EventConverter eventConverter;
+    private EventSource eventSource;
 
     @InjectMocks
     private JsonEnvelopeJdbcRepository jsonEnvelopeJdbcRepository;
 
+
     @Test
-    public void shouldGetAStreamOfEventsByPositionAndStreamIdAndConvertToStreamOfJsonEnvelopes() throws Exception {
+    public void shouldGetAStreamOfEventsAPageAtATime() throws Exception {
 
         final UUID streamId = randomUUID();
-        final Long position = 123L;
-        final Long pageSize = 23L;
+        final long position = 23L;
+        final long pageSize = 2L;
 
-        final Event event_1 = mock(Event.class);
-        final Event event_2 = mock(Event.class);
-        final Event event_3 = mock(Event.class);
-
-        final Stream<Event> eventStream = of(event_1, event_2, event_3);
+        final EventStream eventStream = mock(EventStream.class);
 
         final JsonEnvelope jsonEnvelope_1 = mock(JsonEnvelope.class);
         final JsonEnvelope jsonEnvelope_2 = mock(JsonEnvelope.class);
         final JsonEnvelope jsonEnvelope_3 = mock(JsonEnvelope.class);
 
-        when(eventJdbcRepository.forward(streamId, position, pageSize)).thenReturn(eventStream);
-        when(eventConverter.envelopeOf(event_1)).thenReturn(jsonEnvelope_1);
-        when(eventConverter.envelopeOf(event_2)).thenReturn(jsonEnvelope_2);
-        when(eventConverter.envelopeOf(event_3)).thenReturn(jsonEnvelope_3);
+        when(eventSource.getStreamById(streamId)).thenReturn(eventStream);
+        when(eventStream.readFrom(position)).thenReturn(Stream.of(jsonEnvelope_1, jsonEnvelope_2, jsonEnvelope_3));
 
-        final Stream<JsonEnvelope> jsonEnvelopeStream = jsonEnvelopeJdbcRepository.forward(streamId, position, pageSize);
+        final Stream<JsonEnvelope> envelopeStream = jsonEnvelopeJdbcRepository.pageEventStream(streamId, position, pageSize);
 
-        final List<JsonEnvelope> jsonEnvelopes = jsonEnvelopeStream.collect(toList());
+        final List<JsonEnvelope> jsonEnvelopes = envelopeStream
+                .collect(toList());
 
-        assertThat(jsonEnvelopes.size(), is(3));
+        assertThat(jsonEnvelopes.size(), is(2));
 
         assertThat(jsonEnvelopes.get(0), is(jsonEnvelope_1));
         assertThat(jsonEnvelopes.get(1), is(jsonEnvelope_2));
-        assertThat(jsonEnvelopes.get(2), is(jsonEnvelope_3));
     }
 
     @Test
-    public void shouldGetTheHeadOfAnEventStreamAndConvertToAJsonEnvelope() throws Exception {
+    public void shouldGetTheLatestEventFromAStream() throws Exception {
 
         final UUID streamId = randomUUID();
-        final Long pageSizeOfOne = 1L;
+        final long currentVersion = 23L;
 
-        final Event event_1 = mock(Event.class);
-        final Event event_2 = mock(Event.class);
-        final Event event_3 = mock(Event.class);
+        final EventStream eventStream = mock(EventStream.class);
+        final JsonEnvelope latestJsonEnvelope = mock(JsonEnvelope.class);
 
-        final Stream<Event> eventStream = of(event_1, event_2, event_3);
+        when(eventSource.getStreamById(streamId)).thenReturn(eventStream);
+        when(eventStream.getCurrentVersion()).thenReturn(currentVersion);
+        when(eventStream.readFrom(currentVersion)).thenReturn(Stream.of(latestJsonEnvelope));
 
-        final JsonEnvelope jsonEnvelope_1 = mock(JsonEnvelope.class);
-        final JsonEnvelope jsonEnvelope_2 = mock(JsonEnvelope.class);
-        final JsonEnvelope jsonEnvelope_3 = mock(JsonEnvelope.class);
-
-        when(eventJdbcRepository.head(streamId, pageSizeOfOne)).thenReturn(eventStream);
-        when(eventConverter.envelopeOf(event_1)).thenReturn(jsonEnvelope_1);
-        when(eventConverter.envelopeOf(event_2)).thenReturn(jsonEnvelope_2);
-        when(eventConverter.envelopeOf(event_3)).thenReturn(jsonEnvelope_3);
-
-        final JsonEnvelope jsonEnvelope = jsonEnvelopeJdbcRepository.head(streamId);
-
-        assertThat(jsonEnvelope, is(jsonEnvelope_1));
+        assertThat(jsonEnvelopeJdbcRepository.getLatestEvent(streamId), is(latestJsonEnvelope));
     }
 
     @Test
-    public void shouldGetLatestSequenceIdForStreamFromTheEventJdbcRepository() throws Exception {
+    public void shouldThrowMissingEventStreamHeadExceptionIfTheStreamDoesNotHaveALatestVersion() throws Exception {
+
+        final UUID streamId = fromString("53b9bc77-9ca6-4fe8-9dac-d11c829bb3b8");
+        final long currentVersion = 23L;
+
+        final EventStream eventStream = mock(EventStream.class);
+
+        when(eventSource.getStreamById(streamId)).thenReturn(eventStream);
+        when(eventStream.getCurrentVersion()).thenReturn(currentVersion);
+        when(eventStream.readFrom(currentVersion)).thenReturn(Stream.empty());
+
+        try {
+            jsonEnvelopeJdbcRepository.getLatestEvent(streamId);
+            fail();
+        } catch (final MissingEventStreamHeadException expected) {
+            assertThat(expected.getMessage(), is("Unable to retrieve head Event from stream with id '53b9bc77-9ca6-4fe8-9dac-d11c829bb3b8'"));
+        }
+    }
+
+    @Test
+    public void shouldGetTheCurrentVersion() throws Exception {
 
         final UUID streamId = randomUUID();
-        final Long sequenceId = 98234L;
+        final long currentVersion = 23L;
 
-        when(eventJdbcRepository.getLatestSequenceIdForStream(streamId)).thenReturn(sequenceId);
+        final EventStream eventStream = mock(EventStream.class);
 
-        assertThat(jsonEnvelopeJdbcRepository.getLatestSequenceIdForStream(streamId), is(sequenceId));
+        when(eventSource.getStreamById(streamId)).thenReturn(eventStream);
+        when(eventStream.getCurrentVersion()).thenReturn(currentVersion);
+
+        assertThat(jsonEnvelopeJdbcRepository.getCurrentVersion(streamId), is(currentVersion));
     }
 }

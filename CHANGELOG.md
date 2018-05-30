@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [4.3.1] - 2018-05-30
+
+### Fixed
+- Fix of event stream returning events in reverse order
+
 ## [4.3.0] - 2018-05-30
 
 ### Changed

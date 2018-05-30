@@ -2,8 +2,8 @@ package uk.gov.justice.framework.tools.replay;
 
 import static java.lang.String.format;
 
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.source.core.EventSource;
+import uk.gov.justice.services.eventsourcing.source.core.EventStream;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.UUID;
@@ -13,27 +13,30 @@ import javax.inject.Inject;
 
 public class JsonEnvelopeJdbcRepository {
 
-    private static final long PAGE_SIZE_OF_ONE = 1L;
     @Inject
-    private EventJdbcRepository eventJdbcRepository;
+    private EventSource eventSource;
 
-    @Inject
-    private EventConverter eventConverter;
-
-    public Stream<JsonEnvelope> forward(final UUID streamId, final long position, final long pageSize) {
-        return eventJdbcRepository
-                .forward(streamId, position, pageSize)
-                .map(eventConverter::envelopeOf);
+    public Stream<JsonEnvelope> pageEventStream(final UUID streamId, final long position, final long pageSize) {
+        return eventSource
+                .getStreamById(streamId)
+                .readFrom(position)
+                .limit(pageSize);
     }
 
-    public JsonEnvelope head(final UUID streamId) {
-        return eventJdbcRepository.head(streamId, PAGE_SIZE_OF_ONE)
+    public JsonEnvelope getLatestEvent(final UUID streamId) {
+
+        final EventStream eventStream = eventSource.getStreamById(streamId);
+        final long currentVersion = eventStream.getCurrentVersion();
+
+        return eventStream
+                .readFrom(currentVersion)
                 .findFirst()
-                .map(eventConverter::envelopeOf)
-                .orElseThrow(() -> new RuntimeException(format("Failed to get head for stream id: %s", streamId)));
+                .orElseThrow(() -> new MissingEventStreamHeadException(format("Unable to retrieve head Event from stream with id '%s'", streamId)));
     }
 
-    public long getLatestSequenceIdForStream(final UUID streamId) {
-        return eventJdbcRepository.getLatestSequenceIdForStream(streamId);
+    public long getCurrentVersion(final UUID streamId) {
+        return eventSource
+                .getStreamById(streamId)
+                .getCurrentVersion();
     }
 }
