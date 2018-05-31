@@ -10,7 +10,6 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>uk.gov.justice.framework.tools</groupId>
     <artifactId>replay-tool-it-example-listener</artifactId>
-    <version>1.0.0</version>
     <packaging>war</packaging>
 
     <properties>
@@ -35,10 +34,6 @@
         <dependency>
             <groupId>uk.gov.justice.services</groupId>
             <artifactId>core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.justice.services</groupId>
-            <artifactId>messaging-adapter-core</artifactId>
         </dependency>
         <dependency>
             <groupId>uk.gov.justice.services</groupId>

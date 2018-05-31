@@ -1,38 +1,42 @@
 package uk.gov.justice.framework.tools.listener;
 
-import uk.gov.justice.framework.tools.entity.TestEvent;
+import static java.lang.String.format;
+import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
+
+import uk.gov.justice.framework.tools.database.domain.User;
 import uk.gov.justice.framework.tools.repository.TestViewstoreRepository;
-import uk.gov.justice.services.core.annotation.Component;
 import uk.gov.justice.services.core.annotation.Handles;
 import uk.gov.justice.services.core.annotation.ServiceComponent;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
+import java.io.IOException;
+
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-@ServiceComponent(value = Component.EVENT_LISTENER)
+@ServiceComponent(value = EVENT_LISTENER)
 public class FrameworkToolsTestListener {
-
-    @Inject
-    private Logger logger;
 
     @Inject
     private TestViewstoreRepository testViewstoreRepository;
 
-    @Handles("framework.example-test")
-    public void handle(final JsonEnvelope envelope) {
+    @Inject
+    private ObjectMapper objectMapper;
 
-        logger.error("Saving envelope...");
+    @Handles("framework.update-user")
+    public void handle(final JsonEnvelope envelope) {
         testViewstoreRepository.save(fromJsonEnvelope(envelope));
-        logger.error("Envelope saved");
     }
 
-    private TestEvent fromJsonEnvelope(JsonEnvelope envelope) {
+    private User fromJsonEnvelope(final JsonEnvelope envelope) {
 
-        return new TestEvent(
-                        envelope.metadata().id(),
-                envelope.metadata().version().orElse(0L).intValue(),
-                        envelope.payloadAsJsonObject().toString());
+        final String payload = envelope.payloadAsJsonObject().toString();
+
+        try {
+            return objectMapper.readValue(payload, User.class);
+        } catch (final IOException e) {
+            throw new RuntimeException(format("Failed to create User from json: '%s'", payload));
+        }
     }
 }

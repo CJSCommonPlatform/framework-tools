@@ -7,22 +7,17 @@
     <changeSet id="test-store-001" author="TechPod"
                logicalFilePath="001-test-table.changelog.xml">
 
-        <createTable tableName="test">
-            <column name="stream_id" type="uuid">
+        <createTable tableName="users">
+            <column name="user_id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="first_name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="version_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="data" type="VARCHAR(255)" >
+            <column name="last_name" type="VARCHAR(255)" >
                 <constraints nullable="false"/>
             </column>
         </createTable>
-
-        <addUniqueConstraint tableName="test"
-                             columnNames="stream_id, version_id"
-                             constraintName="stream_id_version_id"/>
-
     </changeSet>
 
 </databaseChangeLog>
