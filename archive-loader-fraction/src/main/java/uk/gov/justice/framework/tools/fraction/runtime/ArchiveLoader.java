@@ -47,9 +47,11 @@ public class ArchiveLoader implements DeploymentProcessor {
                 "uk.gov.justice.services:persistence-jdbc",
                 "uk.gov.justice.services:event-buffer-core",
                 "uk.gov.justice.services:event-listener-interceptors",
+                "uk.gov.justice.services:messaging-adapter-core",
                 "uk.gov.justice.schema:catalog-core",
                 "uk.gov.justice.schema:schema-service",
-                "uk.gov.justice.utilities:utilities-core");
+                "uk.gov.justice.utilities:utilities-core"
+        );
 
         final WebArchive excludeGeneratedApiClasses = create(WebArchive.class, "ExcludeGeneratedApiClasses")
                 .merge(webArchive, frameworkLibraries.exclusionFilter());

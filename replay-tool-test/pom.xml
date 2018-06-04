@@ -15,7 +15,6 @@
     </modules>
 
     <properties>
-        <replay-tool-it-example-listener.version>1.0.0</replay-tool-it-example-listener.version>
         <metrics-servlet.version>1.1.0</metrics-servlet.version>
     </properties>
 

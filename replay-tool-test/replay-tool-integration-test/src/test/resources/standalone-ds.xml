@@ -83,10 +83,10 @@
                 <level name="DEBUG"/>
             </logger>
             <logger category="com.arjuna.ats.jta">
-                <level name="INFO"/>
+                <level name="TRACE"/>
             </logger>
             <logger category="org.jboss.as.jpa">
-                <level name="INFO"/>
+                <level name="TRACE"/>
             </logger>
             <logger category="org.jboss">
                 <level name="WARN"/>

@@ -82,36 +82,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>com.edugility</groupId>
-                <artifactId>h2-maven-plugin</artifactId>
-                <configuration>
-                    <port>8092</port>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>Spawn a new H2 TCP server</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>spawn</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>Stop a spawned H2 TCP server</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.h2database</groupId>
-                        <artifactId>h2</artifactId>
-                        <version>${com.h2database.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
             </plugin>
@@ -132,7 +102,7 @@
                         <artifactItem>
                             <groupId>uk.gov.justice.framework.tools</groupId>
                             <artifactId>replay-tool-it-example-listener</artifactId>
-                            <version>${replay-tool-it-example-listener.version}</version>
+                            <version>${project.version}</version>
                             <type>war</type>
                             <overWrite>true</overWrite>
                             <outputDirectory>${project.basedir}/target/test-classes</outputDirectory>
