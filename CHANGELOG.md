@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [4.3.2] - 2018-06-04
+### Fixed
+- Fix of running out of database Connections during the replay
+
 ## [4.3.1] - 2018-05-30
 
 ### Fixed
