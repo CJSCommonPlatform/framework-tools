@@ -41,11 +41,15 @@ public class AsyncStreamDispatcher {
 
         progressLogger.logStart(streamId);
 
-        replayAllEventsOf(streamId);
+        try {
+            replayAllEventsOf(streamId);
+        } finally {
+            final StreamStatus streamStatus = streamStatusFactory.create(
+                    jsonEnvelopeJdbcRepository.getLatestEvent(streamId),
+                    streamId);
 
-        insertStreamStatus(streamStatusFactory.create(
-                jsonEnvelopeJdbcRepository.getLatestEvent(streamId),
-                streamId));
+            insertStreamStatus(streamStatus);
+        }
 
         progressLogger.logCompletion(streamId);
 
