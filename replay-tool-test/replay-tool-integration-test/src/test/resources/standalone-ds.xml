@@ -83,13 +83,13 @@
                 <level name="DEBUG"/>
             </logger>
             <logger category="com.arjuna.ats.jta">
-                <level name="TRACE"/>
+                <level name="WARN"/>
             </logger>
             <logger category="org.jboss.as.jpa">
-                <level name="TRACE"/>
+                <level name="WARN"/>
             </logger>
             <logger category="org.jboss">
-                <level name="WARN"/>
+                <level name="INFO"/>
             </logger>
             <logger category="sun.rmi">
                 <level name="WARN"/>
@@ -124,7 +124,7 @@
                     <xa-datasource-property name="URL">jdbc:h2:tcp://localhost:8092/mem:eventstore;MVCC=true</xa-datasource-property>
                     <xa-pool>
                         <min-pool-size>3</min-pool-size>
-                        <max-pool-size>1000</max-pool-size>
+                        <max-pool-size>20</max-pool-size>
                         <prefill>true</prefill>
                     </xa-pool>
                     <security>
@@ -138,7 +138,7 @@
                     <xa-datasource-property name="URL">jdbc:h2:tcp://localhost:8092/mem:viewstore;MVCC=true</xa-datasource-property>
                     <xa-pool>
                         <min-pool-size>3</min-pool-size>
-                        <max-pool-size>1000</max-pool-size>
+                        <max-pool-size>20</max-pool-size>
                         <prefill>true</prefill>
                     </xa-pool>
                     <security>
@@ -152,7 +152,7 @@
                     <xa-datasource-property name="URL">jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</xa-datasource-property>
                     <xa-pool>
                         <min-pool-size>3</min-pool-size>
-                        <max-pool-size>1000</max-pool-size>
+                        <max-pool-size>20</max-pool-size>
                         <prefill>true</prefill>
                     </xa-pool>
                     <security>

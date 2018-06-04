@@ -14,6 +14,7 @@ import java.io.IOException;
 import javax.inject.Inject;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
 
 @ServiceComponent(value = EVENT_LISTENER)
 public class FrameworkToolsTestListener {
@@ -24,12 +25,17 @@ public class FrameworkToolsTestListener {
     @Inject
     private ObjectMapper objectMapper;
 
+    @Inject
+    private Logger logger;
+
     @Handles("framework.update-user")
     public void handle(final JsonEnvelope envelope) {
+        logger.info("Replaying event: " + envelope);
         testViewstoreRepository.save(fromJsonEnvelope(envelope));
     }
 
     private User fromJsonEnvelope(final JsonEnvelope envelope) {
+
 
         final String payload = envelope.payloadAsJsonObject().toString();
 

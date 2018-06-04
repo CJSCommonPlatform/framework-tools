@@ -88,11 +88,19 @@ public class JsonEnvelopeJdbcRepositoryTest {
         final EventStream eventStream = mock(EventStream.class);
         final JsonEnvelope latestJsonEnvelope = mock(JsonEnvelope.class);
 
+        final CloseChecker closeChecker = new CloseChecker();
+
+        final Stream<JsonEnvelope> jsonEnvelopeStream = Stream.of(latestJsonEnvelope)
+                .onClose(closeChecker::setClosed);
+
         when(eventSource.getStreamById(streamId)).thenReturn(eventStream);
         when(eventStream.getCurrentVersion()).thenReturn(currentVersion);
-        when(eventStream.readFrom(currentVersion)).thenReturn(Stream.of(latestJsonEnvelope));
+
+        when(eventStream.readFrom(currentVersion)).thenReturn(jsonEnvelopeStream);
 
         assertThat(jsonEnvelopeJdbcRepository.getLatestEvent(streamId), is(latestJsonEnvelope));
+
+        assertThat(closeChecker.isClosed(), is(true));
     }
 
     @Test
@@ -127,5 +135,18 @@ public class JsonEnvelopeJdbcRepositoryTest {
         when(eventStream.getCurrentVersion()).thenReturn(currentVersion);
 
         assertThat(jsonEnvelopeJdbcRepository.getCurrentVersion(streamId), is(currentVersion));
+    }
+
+    private static class CloseChecker {
+
+        private boolean closed = false;
+
+        public void setClosed() {
+            closed = true;
+        }
+
+        public boolean isClosed() {
+            return closed;
+        }
     }
 }
