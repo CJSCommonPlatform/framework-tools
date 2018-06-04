@@ -28,10 +28,11 @@ public class JsonEnvelopeJdbcRepository {
         final EventStream eventStream = eventSource.getStreamById(streamId);
         final long currentVersion = eventStream.getCurrentVersion();
 
-        return eventStream
-                .readFrom(currentVersion)
-                .findFirst()
-                .orElseThrow(() -> new MissingEventStreamHeadException(format("Unable to retrieve head Event from stream with id '%s'", streamId)));
+        try(final Stream<JsonEnvelope> jsonEnvelopeStream = eventStream.readFrom(currentVersion)) {
+            return jsonEnvelopeStream
+                    .findFirst()
+                    .orElseThrow(() -> new MissingEventStreamHeadException(format("Unable to retrieve head Event from stream with id '%s'", streamId)));
+        }
     }
 
     public long getCurrentVersion(final UUID streamId) {
