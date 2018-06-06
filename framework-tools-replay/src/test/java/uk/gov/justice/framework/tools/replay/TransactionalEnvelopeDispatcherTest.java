@@ -5,10 +5,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
 import static uk.gov.justice.services.core.annotation.ServiceComponentLocation.LOCAL;
-import static uk.gov.justice.services.messaging.DefaultJsonEnvelope.envelope;
 
 import uk.gov.justice.services.core.dispatcher.Dispatcher;
 import uk.gov.justice.services.core.dispatcher.DispatcherCache;
+import uk.gov.justice.services.core.extension.ServiceComponentFoundEvent;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import org.junit.Test;
@@ -29,14 +29,17 @@ public class TransactionalEnvelopeDispatcherTest {
 
     @Test
     public void shouldDispatchEnvelope() {
-        Dispatcher dispatcher = mock(Dispatcher.class);
+        final Dispatcher dispatcher = mock(Dispatcher.class);
+        final JsonEnvelope envelope = mock(JsonEnvelope.class);
+        final ServiceComponentFoundEvent serviceComponentFoundEventClass = mock(ServiceComponentFoundEvent.class);
 
+        when(serviceComponentFoundEventClass.getComponentName()).thenReturn(EVENT_LISTENER);
         when(dispatcherCache.dispatcherFor(EVENT_LISTENER, LOCAL)).thenReturn(dispatcher);
-        transactionalEnvelopeDispatcher.init();
 
-        final JsonEnvelope envelope = envelope().build();
+        transactionalEnvelopeDispatcher.register(serviceComponentFoundEventClass);
+
         transactionalEnvelopeDispatcher.dispatch(envelope);
-        verify(dispatcher).dispatch(envelope);
 
+        verify(dispatcher).dispatch(envelope);
     }
 }

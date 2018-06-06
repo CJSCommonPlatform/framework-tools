@@ -64,7 +64,6 @@ public class AsyncStreamDispatcher {
         }
     }
 
-
     @TransactionAttribute(REQUIRED)
     private void replayBatchOfEvents(final UUID streamId, final long position) {
         try (final Stream<JsonEnvelope> eventStream = jsonEnvelopeJdbcRepository.pageEventStream(streamId, position, PAGE_SIZE)) {

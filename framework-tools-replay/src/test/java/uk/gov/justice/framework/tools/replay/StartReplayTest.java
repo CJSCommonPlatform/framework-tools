@@ -71,6 +71,22 @@ public class StartReplayTest {
     }
 
     @Test
+    public void shouldLogWarningIfFailedToDeleteProcessFileDispatchStreams() throws IOException {
+        final Stream<UUID> activeStreamIds = Stream.of(randomUUID(), randomUUID());
+
+        System.setProperty(MAIN_PROCESS_FILE, Paths.get("src/test/processFile").toString());
+
+        when(jdbcEventRepository.getAllActiveStreamIds()).thenReturn(activeStreamIds);
+        when(executorService.submit(any(StreamDispatchTask.class))).thenReturn(dispatchTaskFuture);
+        when(outstandingTasks.isEmpty()).thenReturn(true);
+
+        startReplay.go();
+
+        verify(executorService, times(2)).submit(any(StreamDispatchTask.class));
+        verify(logger).warn("Failed to delete process file '{0}', file does not exist", "src/test/processFile");
+    }
+
+    @Test
     public void shouldDispatchStreamsAndShutdownByForce() {
         final Stream<UUID> activeStreamIds = Stream.of(randomUUID(), randomUUID());
 

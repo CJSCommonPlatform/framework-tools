@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [4.3.3] - 2018-06-06
+### Fixed
+- Fix for replaying of events into custom event listeners
+
 ## [4.3.2] - 2018-06-04
 ### Fixed
 - Fix of running out of database Connections during the replay

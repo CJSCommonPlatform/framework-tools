@@ -1,6 +1,7 @@
 package uk.gov.justice.framework.tools.replay;
 
 import static java.util.UUID.randomUUID;
+import static java.util.stream.IntStream.rangeClosed;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doThrow;
@@ -13,6 +14,8 @@ import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamS
 import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamStatusJdbcRepository;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -78,6 +81,93 @@ public class AsyncStreamDispatcherTest {
     }
 
     @Test
+    public void shouldDispatchOneFullPageOfEvents() throws Exception {
+        final UUID streamId = randomUUID();
+
+        final List<JsonEnvelope> pageOfEvents_1 = pageOfJsonEnvelopes(PAGE_SIZE);
+
+        final JsonEnvelope lastEnvelope = pageOfEvents_1.get(PAGE_SIZE - 1);
+        final StreamStatus streamStatus = mock(StreamStatus.class);
+
+        when(jsonEnvelopeJdbcRepository.getCurrentVersion(streamId)).thenReturn(1000L);
+        when(jsonEnvelopeJdbcRepository.pageEventStream(streamId, 1L, PAGE_SIZE)).thenReturn(pageOfEvents_1.stream());
+        when(jsonEnvelopeJdbcRepository.getLatestEvent(streamId)).thenReturn(lastEnvelope);
+        when(streamStatusFactory.create(lastEnvelope, streamId)).thenReturn(streamStatus);
+
+        assertThat(asyncStreamDispatcher.dispatch(streamId), is(streamId));
+
+        final InOrder inOrder = inOrder(envelopeDispatcher, streamStatusRepository);
+
+        for (JsonEnvelope jsonEnvelope : pageOfEvents_1) {
+            inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope);
+        }
+
+        inOrder.verify(streamStatusRepository).insert(streamStatus);
+    }
+
+    @Test
+    public void shouldDispatchTwoFullPagesOfEvents() throws Exception {
+        final UUID streamId = randomUUID();
+
+        final List<JsonEnvelope> pageOfEvents_1 = pageOfJsonEnvelopes(PAGE_SIZE);
+        final List<JsonEnvelope> pageOfEvents_2 = pageOfJsonEnvelopes(PAGE_SIZE);
+
+        final JsonEnvelope lastEnvelope = pageOfEvents_2.get(PAGE_SIZE - 1);
+        final StreamStatus streamStatus = mock(StreamStatus.class);
+
+        when(jsonEnvelopeJdbcRepository.getCurrentVersion(streamId)).thenReturn(2000L);
+        when(jsonEnvelopeJdbcRepository.pageEventStream(streamId, 1L, PAGE_SIZE)).thenReturn(pageOfEvents_1.stream());
+        when(jsonEnvelopeJdbcRepository.pageEventStream(streamId, 1001L, PAGE_SIZE)).thenReturn(pageOfEvents_2.stream());
+        when(jsonEnvelopeJdbcRepository.getLatestEvent(streamId)).thenReturn(lastEnvelope);
+        when(streamStatusFactory.create(lastEnvelope, streamId)).thenReturn(streamStatus);
+
+        assertThat(asyncStreamDispatcher.dispatch(streamId), is(streamId));
+
+        final InOrder inOrder = inOrder(envelopeDispatcher, streamStatusRepository);
+
+        for (JsonEnvelope jsonEnvelope : pageOfEvents_1) {
+            inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope);
+        }
+
+        for (JsonEnvelope jsonEnvelope : pageOfEvents_2) {
+            inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope);
+        }
+
+        inOrder.verify(streamStatusRepository).insert(streamStatus);
+    }
+
+    @Test
+    public void shouldDispatchOneFullPageAndSecondPageWithSingleEvent() throws Exception {
+        final UUID streamId = randomUUID();
+
+        final List<JsonEnvelope> pageOfEvents_1 = pageOfJsonEnvelopes(PAGE_SIZE);
+        final List<JsonEnvelope> pageOfEvents_2 = pageOfJsonEnvelopes(1);
+
+        final JsonEnvelope lastEnvelope = pageOfEvents_2.get(0);
+        final StreamStatus streamStatus = mock(StreamStatus.class);
+
+        when(jsonEnvelopeJdbcRepository.getCurrentVersion(streamId)).thenReturn(1001L);
+        when(jsonEnvelopeJdbcRepository.pageEventStream(streamId, 1L, PAGE_SIZE)).thenReturn(pageOfEvents_1.stream());
+        when(jsonEnvelopeJdbcRepository.pageEventStream(streamId, 1001L, PAGE_SIZE)).thenReturn(pageOfEvents_2.stream());
+        when(jsonEnvelopeJdbcRepository.getLatestEvent(streamId)).thenReturn(lastEnvelope);
+        when(streamStatusFactory.create(lastEnvelope, streamId)).thenReturn(streamStatus);
+
+        assertThat(asyncStreamDispatcher.dispatch(streamId), is(streamId));
+
+        final InOrder inOrder = inOrder(envelopeDispatcher, streamStatusRepository);
+
+        for (JsonEnvelope jsonEnvelope : pageOfEvents_1) {
+            inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope);
+        }
+
+        for (JsonEnvelope jsonEnvelope : pageOfEvents_2) {
+            inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope);
+        }
+
+        inOrder.verify(streamStatusRepository).insert(streamStatus);
+    }
+
+    @Test
     public void shouldLogFailureIfNoHandlerFoundForDispatch() throws Exception {
 
         final MissingHandlerException missingHandlerException = new MissingHandlerException("Ooops");
@@ -102,5 +192,15 @@ public class AsyncStreamDispatcherTest {
         inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope);
         inOrder.verify(progressLogger).logFailure(streamId, jsonEnvelope);
         inOrder.verify(progressLogger).logCompletion(streamId);
+    }
+
+    private List<JsonEnvelope> pageOfJsonEnvelopes(final int numberOfEvents) {
+        final List<JsonEnvelope> pageOfEvents = new ArrayList<>();
+
+        rangeClosed(1, numberOfEvents).forEach(value -> {
+            pageOfEvents.add(mock(JsonEnvelope.class));
+        });
+
+        return pageOfEvents;
     }
 }
