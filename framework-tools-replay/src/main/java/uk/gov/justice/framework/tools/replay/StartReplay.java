@@ -49,6 +49,7 @@ public class StartReplay implements ManagedTaskListener {
 
     @PostConstruct
     void go() {
+
         logger.info("-------------- Invoke Event Streams Replay-------------!");
         checkForMainProcessFile();
 
@@ -63,6 +64,8 @@ public class StartReplay implements ManagedTaskListener {
         logger.info("-------------- Invocation of Event Streams Replay Completed --------------");
 
     }
+
+
 
     @Override
     public void taskAborted(final Future<?> dispatchTaskFuture, final ManagedExecutorService managedExecutorService, final Object dispatchTask, final Throwable throwable) {
