@@ -8,6 +8,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 ## [4.3.3] - 2018-06-06
 ### Fixed
 - Fix for replaying of events into custom event listeners
+- Fixed logging for the replay application
 
 ## [4.3.2] - 2018-06-04
 ### Fixed
