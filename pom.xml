@@ -28,6 +28,8 @@
                 for the integration tests to work as h2 version inter-compatibility is volatile
         -->
         <com.h2database.version>1.4.187</com.h2database.version>
+        <slf4j-jboss-logmanager.version>1.0.4.GA</slf4j-jboss-logmanager.version>
+        <jboss-logmanager.version>2.1.2.Final</jboss-logmanager.version>
     </properties>
 
     <modules>
