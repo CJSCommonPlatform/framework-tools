@@ -72,7 +72,7 @@
 
             <file-handler name="FILE" autoflush="true">
                 <encoding value="UTF-8"/>
-                <file relative-to="jboss.server.log.dir" path="integration-test-server.log"/>
+                <file relative-to="jboss.server.log.dir" path="replay-wildfly-swarm.log"/>
                 <formatter>
                     <named-formatter name="COLOR-PATTERN"/>
                 </formatter>
