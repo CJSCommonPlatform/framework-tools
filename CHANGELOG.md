@@ -5,7 +5,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
-## [4.3.4] - 2018-06-06
+## [4.3.4] - 2018-06-12
 ### Changed
 - Improved logging to include streamId and event metadata in MDC
 
