@@ -1,45 +1,27 @@
 package uk.gov.justice.framework.tools.replay;
 
-import static java.util.Arrays.asList;
 import static java.util.UUID.fromString;
 import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Stream.of;
-import static org.junit.Assert.*;
-
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import uk.gov.justice.services.eventsourcing.source.core.EventSource;
+import uk.gov.justice.services.eventsourcing.source.core.EventStream;
+import uk.gov.justice.services.messaging.JsonEnvelope;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
-
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
-import uk.gov.justice.services.eventsourcing.source.core.EventSource;
-import uk.gov.justice.services.eventsourcing.source.core.EventStream;
-import uk.gov.justice.services.messaging.JsonEnvelope;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.inject.Inject;
 
 
 @RunWith(MockitoJUnitRunner.class)

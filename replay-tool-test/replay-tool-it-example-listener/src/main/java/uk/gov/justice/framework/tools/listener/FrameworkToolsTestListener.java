@@ -31,8 +31,8 @@ public class FrameworkToolsTestListener {
     @Handles("framework.update-user")
     public void handle(final JsonEnvelope envelope) {
 
-        logger.debug("Replaying event: " + envelope);
         testViewstoreRepository.save(fromJsonEnvelope(envelope));
+        logger.debug("Event saved");
     }
 
     private User fromJsonEnvelope(final JsonEnvelope envelope) {

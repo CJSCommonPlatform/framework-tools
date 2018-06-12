@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [4.3.4] - 2018-06-06
+### Changed
+- Improved logging to include streamId and event metadata in MDC
+
 ## [4.3.3] - 2018-06-06
 ### Fixed
 - Fix for replaying of events into custom event listeners

@@ -20,6 +20,9 @@ public class AsyncStreamDispatcher {
 
     private static final int PAGE_SIZE = 1000;
     private static final long FIRST_POSITION = 1L;
+    
+    private static final String STREAM_ID_MDC_KEY = "streamId";
+    private static final String EVENT_DATA_MDC_KEY = "eventData";
 
     @Inject
     private TransactionalEnvelopeDispatcher envelopeDispatcher;
@@ -36,9 +39,13 @@ public class AsyncStreamDispatcher {
     @Inject
     private ProgressLogger progressLogger;
 
+    @Inject
+    private LoggingMdc loggingMdc;
+
     @TransactionAttribute(NOT_SUPPORTED)
     public UUID dispatch(final UUID streamId) {
 
+        loggingMdc.put(STREAM_ID_MDC_KEY, "streamId: " + streamId);
         progressLogger.logStart(streamId);
 
         try {
@@ -53,6 +60,8 @@ public class AsyncStreamDispatcher {
 
         progressLogger.logCompletion(streamId);
 
+        loggingMdc.clear();
+
         return streamId;
     }
 
@@ -64,7 +73,6 @@ public class AsyncStreamDispatcher {
         }
     }
 
-    @TransactionAttribute(REQUIRED)
     private void replayBatchOfEvents(final UUID streamId, final long position) {
         try (final Stream<JsonEnvelope> eventStream = jsonEnvelopeJdbcRepository.pageEventStream(streamId, position, PAGE_SIZE)) {
             eventStream.forEach(jsonEnvelope -> dispatchEnvelope(jsonEnvelope, streamId));
@@ -72,7 +80,18 @@ public class AsyncStreamDispatcher {
     }
 
     private void dispatchEnvelope(final JsonEnvelope jsonEnvelope, final UUID streamId) {
+
+        loggingMdc.put(EVENT_DATA_MDC_KEY, "event: " + jsonEnvelope.toString());
+
+        doDispatch(jsonEnvelope, streamId);
+
+        loggingMdc.remove(EVENT_DATA_MDC_KEY);
+    }
+
+    @TransactionAttribute(REQUIRED)
+    private void doDispatch(final JsonEnvelope jsonEnvelope, final UUID streamId) {
         try {
+            progressLogger.logDispatch();
             envelopeDispatcher.dispatch(jsonEnvelope);
             progressLogger.logSuccess(streamId, jsonEnvelope);
         } catch (final MissingHandlerException ex) {
