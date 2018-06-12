@@ -46,6 +46,9 @@ public class AsyncStreamDispatcherTest {
     @Mock
     private ProgressLogger progressLogger;
 
+    @Mock
+    private LoggingMdc loggingMdc;
+
     @InjectMocks
     private AsyncStreamDispatcher asyncStreamDispatcher;
 
@@ -67,17 +70,31 @@ public class AsyncStreamDispatcherTest {
 
         assertThat(asyncStreamDispatcher.dispatch(streamId), is(streamId));
 
-        final InOrder inOrder = inOrder(progressLogger, envelopeDispatcher, streamStatusRepository, progressLogger);
+        final InOrder inOrder = inOrder(loggingMdc, progressLogger, envelopeDispatcher, streamStatusRepository, progressLogger);
 
+        inOrder.verify(loggingMdc).put("streamId", "streamId: " + streamId);
         inOrder.verify(progressLogger).logStart(streamId);
+        inOrder.verify(loggingMdc).put("eventData", "event: " + jsonEnvelope_1.toString());
+        inOrder.verify(progressLogger).logDispatch();
         inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope_1);
         inOrder.verify(progressLogger).logSuccess(streamId, jsonEnvelope_1);
+        inOrder.verify(loggingMdc).remove("eventData");
+
+        inOrder.verify(loggingMdc).put("eventData", "event: " + jsonEnvelope_2.toString());
+        inOrder.verify(progressLogger).logDispatch();
         inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope_2);
         inOrder.verify(progressLogger).logSuccess(streamId, jsonEnvelope_2);
+        inOrder.verify(loggingMdc).remove("eventData");
+
+        inOrder.verify(loggingMdc).put("eventData", "event: " + jsonEnvelope_3.toString());
+        inOrder.verify(progressLogger).logDispatch();
         inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope_3);
         inOrder.verify(progressLogger).logSuccess(streamId, jsonEnvelope_3);
+        inOrder.verify(loggingMdc).remove("eventData");
+
         inOrder.verify(streamStatusRepository).insert(streamStatus);
         inOrder.verify(progressLogger).logCompletion(streamId);
+        inOrder.verify(loggingMdc).clear();
     }
 
     @Test

@@ -26,6 +26,10 @@ public class ProgressLogger {
         logger.info("Starting processing of stream: {}", streamId);
     }
 
+    public void logDispatch() {
+        logger.info("Dispatching event");
+    }
+
     public void logSuccess(final UUID streamId, final JsonEnvelope jsonEnvelope) {
 
         sucessCount++;

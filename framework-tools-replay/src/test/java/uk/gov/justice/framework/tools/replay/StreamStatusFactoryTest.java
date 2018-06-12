@@ -14,7 +14,6 @@ import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamS
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.MetadataBuilder;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 

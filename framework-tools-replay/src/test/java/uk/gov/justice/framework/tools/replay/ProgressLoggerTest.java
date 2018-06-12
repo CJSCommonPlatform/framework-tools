@@ -46,6 +46,14 @@ public class ProgressLoggerTest {
     }
 
     @Test
+    public void shouldLogTheDispatchOfAnEvent() throws Exception {
+
+        progressLogger.logDispatch();
+
+        verify(logger).info("Dispatching event");
+    }
+
+    @Test
     public void shouldLogSuccessOnlyIfTheProgressCheckerAllowsIt() throws Exception {
 
         final UUID streamId = randomUUID();
