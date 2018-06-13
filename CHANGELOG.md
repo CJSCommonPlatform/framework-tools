@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Named managed executor service and configuration in standalone.xml
 
 ## [4.3.4] - 2018-06-12
 ### Changed

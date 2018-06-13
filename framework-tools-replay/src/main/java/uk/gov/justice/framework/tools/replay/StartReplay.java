@@ -34,7 +34,7 @@ public class StartReplay implements ManagedTaskListener {
     @Inject
     private Logger logger;
 
-    @Resource
+    @Resource(name = "managedExecutorService.replay-tool")
     private ManagedExecutorService managedExecutorService;
 
     @Inject
@@ -64,7 +64,6 @@ public class StartReplay implements ManagedTaskListener {
         logger.info("-------------- Invocation of Event Streams Replay Completed --------------");
 
     }
-
 
 
     @Override
