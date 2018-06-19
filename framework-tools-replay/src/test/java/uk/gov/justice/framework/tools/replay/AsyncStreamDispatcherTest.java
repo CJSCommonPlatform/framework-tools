@@ -25,6 +25,7 @@ import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AsyncStreamDispatcherTest {
@@ -48,6 +49,9 @@ public class AsyncStreamDispatcherTest {
 
     @Mock
     private LoggingMdc loggingMdc;
+
+    @Mock
+    private Logger logger;
 
     @InjectMocks
     private AsyncStreamDispatcher asyncStreamDispatcher;

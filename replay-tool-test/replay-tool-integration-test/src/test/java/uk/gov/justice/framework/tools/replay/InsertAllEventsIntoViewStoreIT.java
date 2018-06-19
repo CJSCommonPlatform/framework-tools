@@ -13,7 +13,6 @@ import uk.gov.justice.framework.tools.replay.database.EventInserter;
 import uk.gov.justice.framework.tools.replay.database.LiquibaseRunner;
 import uk.gov.justice.framework.tools.replay.events.User;
 import uk.gov.justice.framework.tools.replay.events.UserFactory;
-import uk.gov.justice.framework.tools.replay.h2.InMemoryDatabaseRunner;
 import uk.gov.justice.framework.tools.replay.wildfly.WildflyRunner;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 
@@ -22,9 +21,7 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class InsertAllEventsIntoViewStoreIT {
@@ -32,8 +29,8 @@ public class InsertAllEventsIntoViewStoreIT {
     private static final Boolean SHOULD_LOG_WILDFLY_PROCESS_TO_CONSOLE = true;
     private static final Boolean ENABLE_REMOTE_DEBUGGING_FOR_WILDFLY = false;
 
-    private static final int WILDFLY_TIMEOUT_IN_SECONDS = 60;
-    private static final int NUMBER_OF_EVENTS_TO_INSERT = 100;
+    private static final int WILDFLY_TIMEOUT_IN_SECONDS = 300;
+    private static final int NUMBER_OF_EVENTS_TO_INSERT = 10_000;
 
     private final LiquibaseRunner liquibaseRunner = new LiquibaseRunner();
     private final DatasourceCreator datasourceCreator = new DatasourceCreator();
@@ -43,22 +40,11 @@ public class InsertAllEventsIntoViewStoreIT {
     private final DataSource eventStoreDataSource = datasourceCreator.createEventStoreDataSource();
     private final EventInserter eventInserter = new EventInserter(eventStoreDataSource, viewStoreDataSource);
     private final UserFactory userFactory = new UserFactory();
-    private final InMemoryDatabaseRunner inMemoryDatabaseRunner = new InMemoryDatabaseRunner();
 
-    @Before
-    public void startDatabase() {
-        inMemoryDatabaseRunner.startH2Database();
-    }
-
-    @Before
+      @Before
     public void runLiquibase() throws Exception {
         liquibaseRunner.createEventStoreSchema(eventStoreDataSource);
         liquibaseRunner.createViewStoreSchema(viewStoreDataSource);
-    }
-
-    @After
-    public void stopDB() throws Exception {
-        inMemoryDatabaseRunner.stopH2Database();
     }
 
     @Test

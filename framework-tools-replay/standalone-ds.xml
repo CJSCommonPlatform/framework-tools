@@ -107,7 +107,8 @@
                 </handlers>
             </root-logger>
             <formatter name="PATTERN">
-                <pattern-formatter pattern="%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c] %X{streamId} %X{eventData} %s%e%n"/>
+                <pattern-formatter
+                        pattern="%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c] %X{streamId} %X{eventData} %s%e%n"/>
             </formatter>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:bean-validation:1.0"/>
@@ -186,25 +187,7 @@
                                 class-name="org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker"/>
                     </validation>
                 </xa-datasource>
-
-                <xa-datasource jndi-name="java:jboss/datasources/ExampleDS" pool-name="ExampleDS">
-                    <driver>h2</driver>
-                    <xa-datasource-property name="URL">jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</xa-datasource-property>
-                    <xa-pool>
-                        <min-pool-size>3</min-pool-size>
-                        <max-pool-size>1000</max-pool-size>
-                        <prefill>true</prefill>
-                    </xa-pool>
-                    <security>
-                        <user-name>sa</user-name>
-                        <password>sa</password>
-                    </security>
-                </xa-datasource>
-
                 <drivers>
-                    <driver name="h2" module="com.h2database.h2">
-                        <xa-datasource-class>org.h2.jdbcx.JdbcDataSource</xa-datasource-class>
-                    </driver>
                     <driver name="postgres" module="org.postgresql">
                         <driver-class>org.postgresql.Driver</driver-class>
                         <xa-datasource-class>org.postgresql.xa.PGXADataSource</xa-datasource-class>

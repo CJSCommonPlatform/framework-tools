@@ -4,8 +4,6 @@ package uk.gov.justice.framework.tools.replay;
 import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toList;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import uk.gov.justice.framework.tools.replay.database.DatasourceCreator;
@@ -13,7 +11,6 @@ import uk.gov.justice.framework.tools.replay.database.EventInserter;
 import uk.gov.justice.framework.tools.replay.database.LiquibaseRunner;
 import uk.gov.justice.framework.tools.replay.events.User;
 import uk.gov.justice.framework.tools.replay.events.UserFactory;
-import uk.gov.justice.framework.tools.replay.h2.InMemoryDatabaseRunner;
 import uk.gov.justice.framework.tools.replay.wildfly.WildflyRunner;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 
@@ -23,7 +20,6 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -46,22 +42,12 @@ public class MultipleEventSteamsIT {
     private final DataSource eventStoreDataSource = datasourceCreator.createEventStoreDataSource();
     private final EventInserter eventInserter = new EventInserter(eventStoreDataSource, viewStoreDataSource);
     private final UserFactory userFactory = new UserFactory();
-    private final InMemoryDatabaseRunner inMemoryDatabaseRunner = new InMemoryDatabaseRunner();
 
-    @Before
-    public void startDatabase() {
-        inMemoryDatabaseRunner.startH2Database();
-    }
 
     @Before
     public void runLiquibase() throws Exception {
         liquibaseRunner.createEventStoreSchema(eventStoreDataSource);
         liquibaseRunner.createViewStoreSchema(viewStoreDataSource);
-    }
-
-    @After
-    public void stopDB() throws Exception {
-        inMemoryDatabaseRunner.stopH2Database();
     }
 
     @Test

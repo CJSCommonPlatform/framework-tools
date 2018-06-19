@@ -23,7 +23,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-
 @RunWith(MockitoJUnitRunner.class)
 public class JsonEnvelopeJdbcRepositoryTest {
 
@@ -39,16 +38,15 @@ public class JsonEnvelopeJdbcRepositoryTest {
 
         final UUID streamId = randomUUID();
         final long position = 23L;
-        final long pageSize = 2L;
+        final int pageSize = 2;
 
         final EventStream eventStream = mock(EventStream.class);
 
         final JsonEnvelope jsonEnvelope_1 = mock(JsonEnvelope.class);
         final JsonEnvelope jsonEnvelope_2 = mock(JsonEnvelope.class);
-        final JsonEnvelope jsonEnvelope_3 = mock(JsonEnvelope.class);
 
         when(eventSource.getStreamById(streamId)).thenReturn(eventStream);
-        when(eventStream.readFrom(position)).thenReturn(Stream.of(jsonEnvelope_1, jsonEnvelope_2, jsonEnvelope_3));
+        when(eventStream.readFrom(position, pageSize)).thenReturn(Stream.of(jsonEnvelope_1, jsonEnvelope_2));
 
         final Stream<JsonEnvelope> envelopeStream = jsonEnvelopeJdbcRepository.pageEventStream(streamId, position, pageSize);
 

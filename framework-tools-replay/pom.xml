@@ -68,11 +68,6 @@
             <artifactId>jpa</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${com.h2database.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.wildfly.swarm</groupId>
             <artifactId>datasources</artifactId>
         </dependency>
@@ -162,10 +157,6 @@
                 <exclusion>
                     <groupId>org.jboss.logging</groupId>
                     <artifactId>jboss-logging</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.h2database</groupId>
-                    <artifactId>h2</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
