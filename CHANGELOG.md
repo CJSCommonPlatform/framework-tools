@@ -5,6 +5,15 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [4.4.0] - 2018-06-22
+### Changed
+- Paging of the event stream now done using SQL rather than calling limit(...) on the stream
+- Moved to Postgres for running the integration tests
+- Test event listener now uses JDBC rather than Deltaspike/JPA
+
+### Added
+- added ```-Drun.it=false``` property 
+
 ## [4.3.4] - 2018-06-12
 ### Changed
 - Improved logging to include streamId and event metadata in MDC
