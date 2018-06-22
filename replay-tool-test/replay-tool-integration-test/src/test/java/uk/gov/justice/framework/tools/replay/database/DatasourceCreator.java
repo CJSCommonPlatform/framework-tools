@@ -7,12 +7,12 @@ import org.apache.commons.dbcp2.BasicDataSource;
 
 public class DatasourceCreator {
 
-    private static final String EVENT_STORE_URL = "jdbc:h2:tcp://localhost:8092/mem:eventstore;MVCC=true";
-    private static final String VIEW_STORE_URL = "jdbc:h2:tcp://localhost:8092/mem:viewstore;MVCC=true";
-    private static final String USERNAME = "sa";
-    private static final String PASSWORD = "sa";
+    private static final String EVENT_STORE_URL = "jdbc:postgresql://localhost:5432/frameworkeventstore";
+    private static final String VIEW_STORE_URL = "jdbc:postgresql://localhost:5432/frameworkviewstore";
+    private static final String USERNAME = "framework";
+    private static final String PASSWORD = "framework";
 
-    private static final String DRIVER_CLASS = "org.h2.Driver";
+    private static final String DRIVER_CLASS = "org.postgresql.Driver";
 
     public DataSource createEventStoreDataSource() {
         return initDataSource(

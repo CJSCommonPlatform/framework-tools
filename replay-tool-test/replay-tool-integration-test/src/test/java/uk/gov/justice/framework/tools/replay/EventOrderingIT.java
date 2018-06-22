@@ -1,6 +1,5 @@
 package uk.gov.justice.framework.tools.replay;
 
-
 import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
@@ -12,7 +11,6 @@ import uk.gov.justice.framework.tools.replay.database.EventInserter;
 import uk.gov.justice.framework.tools.replay.database.LiquibaseRunner;
 import uk.gov.justice.framework.tools.replay.events.User;
 import uk.gov.justice.framework.tools.replay.events.UserFactory;
-import uk.gov.justice.framework.tools.replay.h2.InMemoryDatabaseRunner;
 import uk.gov.justice.framework.tools.replay.wildfly.WildflyRunner;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 
@@ -21,9 +19,7 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class EventOrderingIT {
@@ -41,22 +37,11 @@ public class EventOrderingIT {
     private final DataSource eventStoreDataSource = datasourceCreator.createEventStoreDataSource();
     private final EventInserter eventInserter = new EventInserter(eventStoreDataSource, viewStoreDataSource);
     private final UserFactory userFactory = new UserFactory();
-    private final InMemoryDatabaseRunner inMemoryDatabaseRunner = new InMemoryDatabaseRunner();
-
-    @Before
-    public void startDatabase() {
-        inMemoryDatabaseRunner.startH2Database();
-    }
 
     @Before
     public void runLiquibase() throws Exception {
         liquibaseRunner.createEventStoreSchema(eventStoreDataSource);
         liquibaseRunner.createViewStoreSchema(viewStoreDataSource);
-    }
-
-    @After
-    public void stopDB() throws Exception {
-        inMemoryDatabaseRunner.stopH2Database();
     }
 
     @Test
@@ -67,10 +52,8 @@ public class EventOrderingIT {
 
         final UUID userId = randomUUID();
 
-
         final User user = new User(userId, "Fred", "Bloggs");
         final User updatedUser = new User(userId, "Billy", "Bloggs");
-
 
         final List<Event> someEvents = userFactory.convertToEvents(asList(user, updatedUser), eventName, streamId);
 

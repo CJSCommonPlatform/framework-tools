@@ -15,6 +15,8 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+
 @Stateless
 public class AsyncStreamDispatcher {
 
@@ -42,6 +44,9 @@ public class AsyncStreamDispatcher {
     @Inject
     private LoggingMdc loggingMdc;
 
+    @Inject
+    private Logger logger;
+
     @TransactionAttribute(NOT_SUPPORTED)
     public UUID dispatch(final UUID streamId) {
 
@@ -66,6 +71,7 @@ public class AsyncStreamDispatcher {
     }
 
     private void replayAllEventsOf(final UUID streamId) {
+
         final long lastPosition = jsonEnvelopeJdbcRepository.getCurrentVersion(streamId);
 
         for (long position = FIRST_POSITION; position <= lastPosition; position = position + PAGE_SIZE) {

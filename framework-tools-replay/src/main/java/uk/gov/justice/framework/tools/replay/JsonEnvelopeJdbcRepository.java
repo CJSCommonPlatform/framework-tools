@@ -16,11 +16,10 @@ public class JsonEnvelopeJdbcRepository {
     @Inject
     private EventSource eventSource;
 
-    public Stream<JsonEnvelope> pageEventStream(final UUID streamId, final long position, final long pageSize) {
+    public Stream<JsonEnvelope> pageEventStream(final UUID streamId, final long position, final int pageSize) {
         return eventSource
                 .getStreamById(streamId)
-                .readFrom(position)
-                .limit(pageSize);
+                .readFrom(position, pageSize);
     }
 
     public JsonEnvelope getLatestEvent(final UUID streamId) {

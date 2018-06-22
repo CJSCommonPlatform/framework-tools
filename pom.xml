@@ -7,7 +7,7 @@
     <parent>
         <groupId>uk.gov.justice</groupId>
         <artifactId>maven-framework-parent-pom</artifactId>
-        <version>1.12.2</version>
+        <version>1.12.3</version>
     </parent>
 
     <artifactId>framework-tools</artifactId>
@@ -16,18 +16,13 @@
 
     <properties>
         <cpp.repo.name>framework-tools</cpp.repo.name>
-        <common-bom.version>1.26.0</common-bom.version>
-        <framework-api.version>2.0.3</framework-api.version>
-        <framework.version>4.1.0</framework.version>
+        <common-bom.version>1.27.0</common-bom.version>
+        <framework-api.version>2.1.2</framework-api.version>
+        <framework.version>4.2.1</framework.version>
         <wildfly.swarm.version>2017.11.0</wildfly.swarm.version>
-        <test.utils.version>1.17.2</test.utils.version>
-        <schema-service.version>1.2.2</schema-service.version>
+        <test.utils.version>1.17.3</test.utils.version>
+        <schema-service.version>1.2.3</schema-service.version>
         <version.swarm.fraction-plugin>77</version.swarm.fraction-plugin>
-        <!--
-                note h2 version is because swarm has its own version of h2 which we must use
-                for the integration tests to work as h2 version inter-compatibility is volatile
-        -->
-        <com.h2database.version>1.4.187</com.h2database.version>
         <slf4j-jboss-logmanager.version>1.0.4.GA</slf4j-jboss-logmanager.version>
         <jboss-logmanager.version>2.1.2.Final</jboss-logmanager.version>
     </properties>
@@ -95,5 +90,25 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>integration-tests</id>
+            <activation>
+                <property>
+                    <name>run.it</name>
+                    <value>!false</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                     </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
