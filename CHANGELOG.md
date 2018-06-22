@@ -12,7 +12,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 - Test event listener now uses JDBC rather than Deltaspike/JPA
 
 ### Added
-- added ```-Drun.it=false``` property 
+- added ```-Drun.it=false``` property to allow the integration tests to be skipped 
 
 ## [4.3.4] - 2018-06-12
 ### Changed
