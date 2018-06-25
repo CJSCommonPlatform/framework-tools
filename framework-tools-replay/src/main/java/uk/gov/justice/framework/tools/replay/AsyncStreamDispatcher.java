@@ -1,11 +1,9 @@
 package uk.gov.justice.framework.tools.replay;
 
 import static javax.ejb.TransactionAttributeType.NOT_SUPPORTED;
-import static javax.ejb.TransactionAttributeType.REQUIRED;
 
 import uk.gov.justice.services.core.handler.exception.MissingHandlerException;
 import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamStatus;
-import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamStatusJdbcRepository;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.UUID;
@@ -14,8 +12,6 @@ import java.util.stream.Stream;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.inject.Inject;
-
-import org.slf4j.Logger;
 
 @Stateless
 public class AsyncStreamDispatcher {
@@ -30,9 +26,6 @@ public class AsyncStreamDispatcher {
     private TransactionalEnvelopeDispatcher envelopeDispatcher;
 
     @Inject
-    private StreamStatusJdbcRepository streamStatusRepository;
-
-    @Inject
     private StreamStatusFactory streamStatusFactory;
 
     @Inject
@@ -45,7 +38,7 @@ public class AsyncStreamDispatcher {
     private LoggingMdc loggingMdc;
 
     @Inject
-    private Logger logger;
+    private TransactionalStreamStatusRepository transactionalStreamStatusRepository;
 
     @TransactionAttribute(NOT_SUPPORTED)
     public UUID dispatch(final UUID streamId) {
@@ -60,7 +53,7 @@ public class AsyncStreamDispatcher {
                     jsonEnvelopeJdbcRepository.getLatestEvent(streamId),
                     streamId);
 
-            insertStreamStatus(streamStatus);
+            transactionalStreamStatusRepository.insert(streamStatus);
         }
 
         progressLogger.logCompletion(streamId);
@@ -94,7 +87,6 @@ public class AsyncStreamDispatcher {
         loggingMdc.remove(EVENT_DATA_MDC_KEY);
     }
 
-    @TransactionAttribute(REQUIRED)
     private void doDispatch(final JsonEnvelope jsonEnvelope, final UUID streamId) {
         try {
             progressLogger.logDispatch();
@@ -103,10 +95,5 @@ public class AsyncStreamDispatcher {
         } catch (final MissingHandlerException ex) {
             progressLogger.logFailure(streamId, jsonEnvelope);
         }
-    }
-
-    @TransactionAttribute(REQUIRED)
-    private void insertStreamStatus(final StreamStatus streamStatus) {
-        streamStatusRepository.insert(streamStatus);
     }
 }
