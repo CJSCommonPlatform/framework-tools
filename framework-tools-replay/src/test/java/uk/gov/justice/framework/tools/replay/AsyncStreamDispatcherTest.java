@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.core.handler.exception.MissingHandlerException;
 import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamStatus;
-import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamStatusJdbcRepository;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.ArrayList;
@@ -25,7 +24,6 @@ import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AsyncStreamDispatcherTest {
@@ -34,9 +32,6 @@ public class AsyncStreamDispatcherTest {
 
     @Mock
     private TransactionalEnvelopeDispatcher envelopeDispatcher;
-
-    @Mock
-    private StreamStatusJdbcRepository streamStatusRepository;
 
     @Mock
     private StreamStatusFactory streamStatusFactory;
@@ -51,7 +46,7 @@ public class AsyncStreamDispatcherTest {
     private LoggingMdc loggingMdc;
 
     @Mock
-    private Logger logger;
+    private TransactionalStreamStatusRepository transactionalStreamStatusRepository;
 
     @InjectMocks
     private AsyncStreamDispatcher asyncStreamDispatcher;
@@ -74,7 +69,7 @@ public class AsyncStreamDispatcherTest {
 
         assertThat(asyncStreamDispatcher.dispatch(streamId), is(streamId));
 
-        final InOrder inOrder = inOrder(loggingMdc, progressLogger, envelopeDispatcher, streamStatusRepository, progressLogger);
+        final InOrder inOrder = inOrder(loggingMdc, progressLogger, envelopeDispatcher, transactionalStreamStatusRepository, progressLogger);
 
         inOrder.verify(loggingMdc).put("streamId", "streamId: " + streamId);
         inOrder.verify(progressLogger).logStart(streamId);
@@ -96,7 +91,7 @@ public class AsyncStreamDispatcherTest {
         inOrder.verify(progressLogger).logSuccess(streamId, jsonEnvelope_3);
         inOrder.verify(loggingMdc).remove("eventData");
 
-        inOrder.verify(streamStatusRepository).insert(streamStatus);
+        inOrder.verify(transactionalStreamStatusRepository).insert(streamStatus);
         inOrder.verify(progressLogger).logCompletion(streamId);
         inOrder.verify(loggingMdc).clear();
     }
@@ -117,13 +112,13 @@ public class AsyncStreamDispatcherTest {
 
         assertThat(asyncStreamDispatcher.dispatch(streamId), is(streamId));
 
-        final InOrder inOrder = inOrder(envelopeDispatcher, streamStatusRepository);
+        final InOrder inOrder = inOrder(envelopeDispatcher, transactionalStreamStatusRepository);
 
         for (JsonEnvelope jsonEnvelope : pageOfEvents_1) {
             inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope);
         }
 
-        inOrder.verify(streamStatusRepository).insert(streamStatus);
+        inOrder.verify(transactionalStreamStatusRepository).insert(streamStatus);
     }
 
     @Test
@@ -144,7 +139,7 @@ public class AsyncStreamDispatcherTest {
 
         assertThat(asyncStreamDispatcher.dispatch(streamId), is(streamId));
 
-        final InOrder inOrder = inOrder(envelopeDispatcher, streamStatusRepository);
+        final InOrder inOrder = inOrder(envelopeDispatcher, transactionalStreamStatusRepository);
 
         for (JsonEnvelope jsonEnvelope : pageOfEvents_1) {
             inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope);
@@ -154,7 +149,7 @@ public class AsyncStreamDispatcherTest {
             inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope);
         }
 
-        inOrder.verify(streamStatusRepository).insert(streamStatus);
+        inOrder.verify(transactionalStreamStatusRepository).insert(streamStatus);
     }
 
     @Test
@@ -175,7 +170,7 @@ public class AsyncStreamDispatcherTest {
 
         assertThat(asyncStreamDispatcher.dispatch(streamId), is(streamId));
 
-        final InOrder inOrder = inOrder(envelopeDispatcher, streamStatusRepository);
+        final InOrder inOrder = inOrder(envelopeDispatcher, transactionalStreamStatusRepository);
 
         for (JsonEnvelope jsonEnvelope : pageOfEvents_1) {
             inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope);
@@ -185,7 +180,7 @@ public class AsyncStreamDispatcherTest {
             inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope);
         }
 
-        inOrder.verify(streamStatusRepository).insert(streamStatus);
+        inOrder.verify(transactionalStreamStatusRepository).insert(streamStatus);
     }
 
     @Test
@@ -207,7 +202,7 @@ public class AsyncStreamDispatcherTest {
 
         assertThat(asyncStreamDispatcher.dispatch(streamId), is(streamId));
 
-        final InOrder inOrder = inOrder(progressLogger, envelopeDispatcher, streamStatusRepository, progressLogger);
+        final InOrder inOrder = inOrder(progressLogger, envelopeDispatcher, transactionalStreamStatusRepository, progressLogger);
 
         inOrder.verify(progressLogger).logStart(streamId);
         inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope);
