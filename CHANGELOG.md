@@ -5,6 +5,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [4.5.0] - 2018-07-12
+### Changed
+- Update to framework version 4.3.2
+- Update to framework api version 2.2.0
+- Update schema catalog service to version 1.3.2
+
 ## [4.4.0] - 2018-06-22
 ### Changed
 - Paging of the event stream now done using SQL rather than calling limit(...) on the stream
