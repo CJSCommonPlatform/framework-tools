@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.wildfly.swarm.bootstrap.Main.MAIN_PROCESS_FILE;
 
-import uk.gov.justice.services.eventsourcing.repository.jdbc.JdbcEventRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 public class StartReplayTest {
 
     @Mock
-    private JdbcEventRepository jdbcEventRepository;
+    private EventRepository eventRepository;
 
     @Mock
     private ManagedExecutorService executorService;
@@ -60,7 +60,7 @@ public class StartReplayTest {
         final Stream<UUID> activeStreamIds = Stream.of(randomUUID(), randomUUID());
         createMainProcessFile();
 
-        when(jdbcEventRepository.getAllActiveStreamIds()).thenReturn(activeStreamIds);
+        when(eventRepository.getAllActiveStreamIds()).thenReturn(activeStreamIds);
         when(executorService.submit(any(StreamDispatchTask.class))).thenReturn(dispatchTaskFuture);
         when(outstandingTasks.isEmpty()).thenReturn(true);
 
@@ -76,7 +76,7 @@ public class StartReplayTest {
 
         System.setProperty(MAIN_PROCESS_FILE, Paths.get("src/test/processFile").toString());
 
-        when(jdbcEventRepository.getAllActiveStreamIds()).thenReturn(activeStreamIds);
+        when(eventRepository.getAllActiveStreamIds()).thenReturn(activeStreamIds);
         when(executorService.submit(any(StreamDispatchTask.class))).thenReturn(dispatchTaskFuture);
         when(outstandingTasks.isEmpty()).thenReturn(true);
 
@@ -90,7 +90,7 @@ public class StartReplayTest {
     public void shouldDispatchStreamsAndShutdownByForce() {
         final Stream<UUID> activeStreamIds = Stream.of(randomUUID(), randomUUID());
 
-        when(jdbcEventRepository.getAllActiveStreamIds()).thenReturn(activeStreamIds);
+        when(eventRepository.getAllActiveStreamIds()).thenReturn(activeStreamIds);
         when(executorService.submit(any(StreamDispatchTask.class))).thenReturn(dispatchTaskFuture);
         when(outstandingTasks.isEmpty()).thenReturn(true);
 

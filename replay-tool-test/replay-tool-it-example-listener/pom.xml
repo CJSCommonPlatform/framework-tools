@@ -36,7 +36,7 @@
             <artifactId>core</artifactId>
         </dependency>
         <dependency>
-            <groupId>uk.gov.justice.services</groupId>
+            <groupId>uk.gov.justice.event-store</groupId>
             <artifactId>event-listener-interceptors</artifactId>
         </dependency>
         <dependency>

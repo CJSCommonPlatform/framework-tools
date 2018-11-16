@@ -3,8 +3,8 @@ package uk.gov.justice.framework.tools.replay;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamStatus;
-import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamStatusJdbcRepository;
+import uk.gov.justice.services.event.buffer.core.repository.subscription.Subscription;
+import uk.gov.justice.services.event.buffer.core.repository.subscription.SubscriptionJdbcRepository;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +16,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class TransactionalStreamStatusRepositoryTest {
 
     @Mock
-    private StreamStatusJdbcRepository streamStatusRepository;
+    private SubscriptionJdbcRepository streamStatusRepository;
 
     @InjectMocks
     private TransactionalStreamStatusRepository streamDispatcherDelegate;
@@ -24,10 +24,10 @@ public class TransactionalStreamStatusRepositoryTest {
     @Test
     public void shouldDelegateTheInsertOfStreamStatusToTheRepositoryToAllowForTransactionalAnnotation() throws Exception {
 
-        final StreamStatus streamStatus = mock(StreamStatus.class);
+        final Subscription subscription = mock(Subscription.class);
 
-        streamDispatcherDelegate.insert(streamStatus);
+        streamDispatcherDelegate.insert(subscription);
 
-        verify(streamStatusRepository).insert(streamStatus);
+        verify(streamStatusRepository).insert(subscription);
     }
 }

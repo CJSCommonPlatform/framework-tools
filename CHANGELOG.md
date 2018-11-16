@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [5.0.0] - 2018-11-19
+### Changed
+- Update to framework 5.0.4
+
 ## [4.5.0] - 2018-07-12
 ### Changed
 - Update to framework version 4.3.2

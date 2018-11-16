@@ -3,7 +3,7 @@ package uk.gov.justice.framework.tools.replay;
 import static javax.ejb.TransactionAttributeType.NOT_SUPPORTED;
 
 import uk.gov.justice.services.core.handler.exception.MissingHandlerException;
-import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamStatus;
+import uk.gov.justice.services.event.buffer.core.repository.subscription.Subscription;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.UUID;
@@ -26,7 +26,7 @@ public class AsyncStreamDispatcher {
     private TransactionalEnvelopeDispatcher envelopeDispatcher;
 
     @Inject
-    private StreamStatusFactory streamStatusFactory;
+    private StreamSubscriptionFactory streamSubscriptionFactory;
 
     @Inject
     private JsonEnvelopeJdbcRepository jsonEnvelopeJdbcRepository;
@@ -49,11 +49,11 @@ public class AsyncStreamDispatcher {
         try {
             replayAllEventsOf(streamId);
         } finally {
-            final StreamStatus streamStatus = streamStatusFactory.create(
+            final Subscription subscription = streamSubscriptionFactory.create(
                     jsonEnvelopeJdbcRepository.getLatestEvent(streamId),
                     streamId);
 
-            transactionalStreamStatusRepository.insert(streamStatus);
+            transactionalStreamStatusRepository.insert(subscription);
         }
 
         progressLogger.logCompletion(streamId);
