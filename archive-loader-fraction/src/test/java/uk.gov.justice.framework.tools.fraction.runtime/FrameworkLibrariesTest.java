@@ -15,7 +15,7 @@ public class FrameworkLibrariesTest {
     @Test
     public void shouldReturnShrinkwrapArchives() throws Exception {
         FrameworkLibraries frameworkLibraries = new FrameworkLibraries(
-                "uk.gov.justice.services:event-repository-jdbc:",
+                "uk.gov.justice.event-store:event-repository-jdbc:",
                 "uk.gov.justice.framework-api:framework-api-core");
 
         Archive[] archives = frameworkLibraries.shrinkWrapArchives();
@@ -27,7 +27,7 @@ public class FrameworkLibrariesTest {
     @Test
     public void shouldReturnExclusionFilter() {
         Filter<ArchivePath> filter = new FrameworkLibraries(
-                "uk.gov.justice.services:event-repository-jdbc",
+                "uk.gov.justice.event-store:event-repository-jdbc",
                 "uk.gov.justice.framework-api:framework-api-core")
                 .exclusionFilter();
 
@@ -40,7 +40,7 @@ public class FrameworkLibrariesTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowIllegalArgExceptionIfArtifactNotInCorrectFormat() {
         new FrameworkLibraries(
-                "uk.gov.justice.services:event-repository-jdbc",
+                "uk.gov.justice.event-store:event-repository-jdbc",
                 "aaaa");
     }
 }

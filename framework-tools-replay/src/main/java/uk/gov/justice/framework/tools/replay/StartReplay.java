@@ -3,7 +3,7 @@ package uk.gov.justice.framework.tools.replay;
 import static java.util.stream.Collectors.toList;
 import static org.wildfly.swarm.bootstrap.Main.MAIN_PROCESS_FILE;
 
-import uk.gov.justice.services.eventsourcing.repository.jdbc.JdbcEventRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +38,7 @@ public class StartReplay implements ManagedTaskListener {
     private ManagedExecutorService managedExecutorService;
 
     @Inject
-    private JdbcEventRepository jdbcEventRepository;
+    private EventRepository eventRepository;
 
     @Inject
     private AsyncStreamDispatcher asyncStreamDispatcher;
@@ -53,7 +53,7 @@ public class StartReplay implements ManagedTaskListener {
         logger.info("-------------- Invoke Event Streams Replay-------------!");
         checkForMainProcessFile();
 
-        final List<UUID> activeStreamIds = jdbcEventRepository.getAllActiveStreamIds().collect(toList());
+        final List<UUID> activeStreamIds = eventRepository.getAllActiveStreamIds().collect(toList());
         activeStreamIds.forEach(uuid -> {
             final StreamDispatchTask dispatchTask = new StreamDispatchTask(uuid, asyncStreamDispatcher, this);
             outstandingTasks.add(managedExecutorService.submit(dispatchTask));
@@ -64,8 +64,6 @@ public class StartReplay implements ManagedTaskListener {
         logger.info("-------------- Invocation of Event Streams Replay Completed --------------");
 
     }
-
-
 
     @Override
     public void taskAborted(final Future<?> dispatchTaskFuture, final ManagedExecutorService managedExecutorService, final Object dispatchTask, final Throwable throwable) {

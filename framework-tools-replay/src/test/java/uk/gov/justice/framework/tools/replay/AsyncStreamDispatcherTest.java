@@ -10,7 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.core.handler.exception.MissingHandlerException;
-import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamStatus;
+import uk.gov.justice.services.event.buffer.core.repository.subscription.Subscription;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class AsyncStreamDispatcherTest {
     private TransactionalEnvelopeDispatcher envelopeDispatcher;
 
     @Mock
-    private StreamStatusFactory streamStatusFactory;
+    private StreamSubscriptionFactory streamSubscriptionFactory;
 
     @Mock
     private JsonEnvelopeJdbcRepository jsonEnvelopeJdbcRepository;
@@ -60,12 +60,12 @@ public class AsyncStreamDispatcherTest {
         final JsonEnvelope jsonEnvelope_3 = mock(JsonEnvelope.class);
 
         final Stream<JsonEnvelope> envelopeStream = Stream.of(jsonEnvelope_1, jsonEnvelope_2, jsonEnvelope_3);
-        final StreamStatus streamStatus = mock(StreamStatus.class);
+        final Subscription subscription = mock(Subscription.class);
 
         when(jsonEnvelopeJdbcRepository.getCurrentVersion(streamId)).thenReturn(3L);
         when(jsonEnvelopeJdbcRepository.pageEventStream(streamId, 1L, PAGE_SIZE)).thenReturn(envelopeStream);
         when(jsonEnvelopeJdbcRepository.getLatestEvent(streamId)).thenReturn(jsonEnvelope_3);
-        when(streamStatusFactory.create(jsonEnvelope_3, streamId)).thenReturn(streamStatus);
+        when(streamSubscriptionFactory.create(jsonEnvelope_3, streamId)).thenReturn(subscription);
 
         assertThat(asyncStreamDispatcher.dispatch(streamId), is(streamId));
 
@@ -91,7 +91,7 @@ public class AsyncStreamDispatcherTest {
         inOrder.verify(progressLogger).logSuccess(streamId, jsonEnvelope_3);
         inOrder.verify(loggingMdc).remove("eventData");
 
-        inOrder.verify(transactionalStreamStatusRepository).insert(streamStatus);
+        inOrder.verify(transactionalStreamStatusRepository).insert(subscription);
         inOrder.verify(progressLogger).logCompletion(streamId);
         inOrder.verify(loggingMdc).clear();
     }
@@ -103,12 +103,12 @@ public class AsyncStreamDispatcherTest {
         final List<JsonEnvelope> pageOfEvents_1 = pageOfJsonEnvelopes(PAGE_SIZE);
 
         final JsonEnvelope lastEnvelope = pageOfEvents_1.get(PAGE_SIZE - 1);
-        final StreamStatus streamStatus = mock(StreamStatus.class);
+        final Subscription subscription = mock(Subscription.class);
 
         when(jsonEnvelopeJdbcRepository.getCurrentVersion(streamId)).thenReturn(1000L);
         when(jsonEnvelopeJdbcRepository.pageEventStream(streamId, 1L, PAGE_SIZE)).thenReturn(pageOfEvents_1.stream());
         when(jsonEnvelopeJdbcRepository.getLatestEvent(streamId)).thenReturn(lastEnvelope);
-        when(streamStatusFactory.create(lastEnvelope, streamId)).thenReturn(streamStatus);
+        when(streamSubscriptionFactory.create(lastEnvelope, streamId)).thenReturn(subscription);
 
         assertThat(asyncStreamDispatcher.dispatch(streamId), is(streamId));
 
@@ -118,7 +118,7 @@ public class AsyncStreamDispatcherTest {
             inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope);
         }
 
-        inOrder.verify(transactionalStreamStatusRepository).insert(streamStatus);
+        inOrder.verify(transactionalStreamStatusRepository).insert(subscription);
     }
 
     @Test
@@ -129,13 +129,13 @@ public class AsyncStreamDispatcherTest {
         final List<JsonEnvelope> pageOfEvents_2 = pageOfJsonEnvelopes(PAGE_SIZE);
 
         final JsonEnvelope lastEnvelope = pageOfEvents_2.get(PAGE_SIZE - 1);
-        final StreamStatus streamStatus = mock(StreamStatus.class);
+        final Subscription subscription = mock(Subscription.class);
 
         when(jsonEnvelopeJdbcRepository.getCurrentVersion(streamId)).thenReturn(2000L);
         when(jsonEnvelopeJdbcRepository.pageEventStream(streamId, 1L, PAGE_SIZE)).thenReturn(pageOfEvents_1.stream());
         when(jsonEnvelopeJdbcRepository.pageEventStream(streamId, 1001L, PAGE_SIZE)).thenReturn(pageOfEvents_2.stream());
         when(jsonEnvelopeJdbcRepository.getLatestEvent(streamId)).thenReturn(lastEnvelope);
-        when(streamStatusFactory.create(lastEnvelope, streamId)).thenReturn(streamStatus);
+        when(streamSubscriptionFactory.create(lastEnvelope, streamId)).thenReturn(subscription);
 
         assertThat(asyncStreamDispatcher.dispatch(streamId), is(streamId));
 
@@ -149,7 +149,7 @@ public class AsyncStreamDispatcherTest {
             inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope);
         }
 
-        inOrder.verify(transactionalStreamStatusRepository).insert(streamStatus);
+        inOrder.verify(transactionalStreamStatusRepository).insert(subscription);
     }
 
     @Test
@@ -160,13 +160,13 @@ public class AsyncStreamDispatcherTest {
         final List<JsonEnvelope> pageOfEvents_2 = pageOfJsonEnvelopes(1);
 
         final JsonEnvelope lastEnvelope = pageOfEvents_2.get(0);
-        final StreamStatus streamStatus = mock(StreamStatus.class);
+        final Subscription subscription = mock(Subscription.class);
 
         when(jsonEnvelopeJdbcRepository.getCurrentVersion(streamId)).thenReturn(1001L);
         when(jsonEnvelopeJdbcRepository.pageEventStream(streamId, 1L, PAGE_SIZE)).thenReturn(pageOfEvents_1.stream());
         when(jsonEnvelopeJdbcRepository.pageEventStream(streamId, 1001L, PAGE_SIZE)).thenReturn(pageOfEvents_2.stream());
         when(jsonEnvelopeJdbcRepository.getLatestEvent(streamId)).thenReturn(lastEnvelope);
-        when(streamStatusFactory.create(lastEnvelope, streamId)).thenReturn(streamStatus);
+        when(streamSubscriptionFactory.create(lastEnvelope, streamId)).thenReturn(subscription);
 
         assertThat(asyncStreamDispatcher.dispatch(streamId), is(streamId));
 
@@ -180,7 +180,7 @@ public class AsyncStreamDispatcherTest {
             inOrder.verify(envelopeDispatcher).dispatch(jsonEnvelope);
         }
 
-        inOrder.verify(transactionalStreamStatusRepository).insert(streamStatus);
+        inOrder.verify(transactionalStreamStatusRepository).insert(subscription);
     }
 
     @Test
@@ -193,12 +193,12 @@ public class AsyncStreamDispatcherTest {
         final JsonEnvelope jsonEnvelope = mock(JsonEnvelope.class);
         final Stream<JsonEnvelope> envelopeStream = Stream.of(jsonEnvelope);
 
-        final StreamStatus streamStatus = mock(StreamStatus.class);
+        final Subscription subscription = mock(Subscription.class);
 
         when(jsonEnvelopeJdbcRepository.getCurrentVersion(streamId)).thenReturn(1L);
         when(jsonEnvelopeJdbcRepository.pageEventStream(streamId, 1L, PAGE_SIZE)).thenReturn(envelopeStream);
         doThrow(missingHandlerException).when(envelopeDispatcher).dispatch(jsonEnvelope);
-        when(streamStatusFactory.create(jsonEnvelope, streamId)).thenReturn(streamStatus);
+        when(streamSubscriptionFactory.create(jsonEnvelope, streamId)).thenReturn(subscription);
 
         assertThat(asyncStreamDispatcher.dispatch(streamId), is(streamId));
 

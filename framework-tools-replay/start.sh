@@ -7,7 +7,7 @@ java -jar notification-viewstore-liquibase-1.0.12-SNAPSHOT.jar --url=jdbc:postgr
 java -jar notification-viewstore-liquibase-1.0.12-SNAPSHOT.jar --url=jdbc:postgresql://localhost:5432/notificationviewstore --username=notification --password=notification --logLevel=info update
 
 # Update event buffer tables
-mvn org.apache.maven.plugins:maven-dependency-plugin:2.10:copy -DoutputDirectory=target -Dartifact=uk.gov.justice.services:event-buffer-liquibase:0.33.0:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.10:copy -DoutputDirectory=target -Dartifact=uk.gov.justice.event-store:event-buffer-liquibase:0.33.0:jar
 java -jar target/event-buffer-liquibase-0.33.0.jar --url=jdbc:postgresql://localhost:5432/notificationviewstore --username=notification --password=notification --logLevel=info update
 
 # Replay event streams

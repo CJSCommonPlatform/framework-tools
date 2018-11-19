@@ -3,21 +3,21 @@ package uk.gov.justice.framework.tools.replay;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.substringBefore;
 
-import uk.gov.justice.services.event.buffer.core.repository.streamstatus.StreamStatus;
+import uk.gov.justice.services.event.buffer.core.repository.subscription.Subscription;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.UUID;
 
-public class StreamStatusFactory {
+public class StreamSubscriptionFactory {
 
-    public StreamStatus create(final JsonEnvelope jsonEnvelope, final UUID streamId) {
-        final Long version = getVersionFrom(jsonEnvelope);
+    public Subscription create(final JsonEnvelope jsonEnvelope, final UUID streamId) {
+        final Long position = getPositionFrom(jsonEnvelope);
         final String source = getSourceFrom(jsonEnvelope);
 
-        return new StreamStatus(streamId, version, source);
+        return new Subscription(streamId, position, source);
     }
 
-    private Long getVersionFrom(final JsonEnvelope envelope) {
+    private Long getPositionFrom(final JsonEnvelope envelope) {
         return envelope
                 .metadata()
                 .version()

@@ -6,7 +6,7 @@ import uk.gov.justice.framework.tools.replay.events.User;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidSequenceIdException;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidPositionException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -61,7 +61,7 @@ public class EventInserter {
     private void insertIntoViewStore(final Event event) {
         try {
             eventJdbcRepository.insert(event);
-        } catch (final InvalidSequenceIdException e) {
+        } catch (final InvalidPositionException e) {
             throw new RuntimeException(format("Failed to insert Event '%s", event), e);
         }
     }

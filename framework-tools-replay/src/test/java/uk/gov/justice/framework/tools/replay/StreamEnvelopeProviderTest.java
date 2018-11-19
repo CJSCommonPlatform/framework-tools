@@ -6,7 +6,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import uk.gov.justice.services.eventsourcing.repository.jdbc.JdbcEventRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class StreamEnvelopeProviderTest {
 
     @Mock
-    private JdbcEventRepository jdbcEventRepository;
+    private EventRepository eventRepository;
 
     @InjectMocks
     private StreamEnvelopeProvider streamEnvelopeProvider;
@@ -46,7 +46,7 @@ public class StreamEnvelopeProviderTest {
                 jsonEnvelope_3
         ).onClose(() -> closeCheckerList.add(true));
 
-        when(jdbcEventRepository.getByStreamId(streamId)).thenReturn(
+        when(eventRepository.getEventsByStreamId(streamId)).thenReturn(
                 envelopeStream
         );
 

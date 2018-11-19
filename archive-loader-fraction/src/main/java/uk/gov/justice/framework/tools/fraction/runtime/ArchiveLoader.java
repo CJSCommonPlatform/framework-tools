@@ -18,7 +18,6 @@ import org.wildfly.swarm.undertow.WARArchive;
 @DeploymentScoped
 public class ArchiveLoader implements DeploymentProcessor {
 
-
     private static final String EVENT_LISTENER_WAR = "event.listener.war";
 
     private final Archive<?> archive;
@@ -32,21 +31,20 @@ public class ArchiveLoader implements DeploymentProcessor {
         this.archive = archive;
     }
 
-
     @Override
     public void process() {
 
         final WebArchive webArchive = createFromZipFile(WebArchive.class, Paths.get(library).toFile());
 
         final FrameworkLibraries frameworkLibraries = new FrameworkLibraries(
-                "uk.gov.justice.services:event-repository-jdbc",
+                "uk.gov.justice.event-store:event-repository-jdbc",
                 "uk.gov.justice.framework-api:framework-api-core",
                 "uk.gov.justice.services:core",
                 "uk.gov.justice.services:messaging-jms",
                 "uk.gov.justice.services:messaging-core",
                 "uk.gov.justice.services:persistence-jdbc",
-                "uk.gov.justice.services:event-buffer-core",
-                "uk.gov.justice.services:event-listener-interceptors",
+                "uk.gov.justice.event-store:event-buffer-core",
+                "uk.gov.justice.event-store:event-listener-interceptors",
                 "uk.gov.justice.schema:catalog-core",
                 "uk.gov.justice.schema:schema-service",
                 "uk.gov.justice.utilities:utilities-core"
