@@ -3,7 +3,7 @@ package uk.gov.justice.framework.tools.replay;
 import static javax.transaction.Transactional.TxType.REQUIRED;
 
 import uk.gov.justice.services.event.buffer.core.repository.subscription.Subscription;
-import uk.gov.justice.services.event.buffer.core.repository.subscription.SubscriptionJdbcRepository;
+import uk.gov.justice.services.event.buffer.core.repository.subscription.StreamStatusJdbcRepository;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -11,10 +11,10 @@ import javax.transaction.Transactional;
 public class TransactionalStreamStatusRepository {
 
     @Inject
-    private SubscriptionJdbcRepository streamStatusRepository;
+    private StreamStatusJdbcRepository streamStatusJdbcRepository;
 
     @Transactional(REQUIRED)
     public void insert(final Subscription subscription) {
-        streamStatusRepository.insert(subscription);
+        streamStatusJdbcRepository.insert(subscription);
     }
 }

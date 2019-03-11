@@ -3,8 +3,8 @@ package uk.gov.justice.framework.tools.replay;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import uk.gov.justice.services.event.buffer.core.repository.subscription.StreamStatusJdbcRepository;
 import uk.gov.justice.services.event.buffer.core.repository.subscription.Subscription;
-import uk.gov.justice.services.event.buffer.core.repository.subscription.SubscriptionJdbcRepository;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +16,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class TransactionalStreamStatusRepositoryTest {
 
     @Mock
-    private SubscriptionJdbcRepository streamStatusRepository;
+    private StreamStatusJdbcRepository streamStatusJdbcRepository;
 
     @InjectMocks
     private TransactionalStreamStatusRepository streamDispatcherDelegate;
@@ -28,6 +28,6 @@ public class TransactionalStreamStatusRepositoryTest {
 
         streamDispatcherDelegate.insert(subscription);
 
-        verify(streamStatusRepository).insert(subscription);
+        verify(streamStatusJdbcRepository).insert(subscription);
     }
 }
