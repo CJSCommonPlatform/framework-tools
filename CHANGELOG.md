@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [5.1.1] - 2019-03-21
+### Fixed
+- Use correct maven scope for test jars
+- Update to framework 5.1.2
+
 ## [5.1.0] - 2019-03-11
 ### Changed
 - Update to framework 5.1.0
