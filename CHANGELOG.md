@@ -4,6 +4,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [5.2.0] - 2019-05-02
+### Changed
+- Upgraded Swarm to Thorntail
+### Fixed 
+- Add new event-store jars to list of jars to be excluded from Thorntail
 
 ## [5.1.1] - 2019-03-21
 ### Fixed

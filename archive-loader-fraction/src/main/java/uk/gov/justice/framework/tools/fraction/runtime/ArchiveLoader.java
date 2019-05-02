@@ -38,6 +38,7 @@ public class ArchiveLoader implements DeploymentProcessor {
 
         final FrameworkLibraries frameworkLibraries = new FrameworkLibraries(
                 "uk.gov.justice.event-store:event-repository-jdbc",
+                "uk.gov.justice.event-store:linked-event-processor",
                 "uk.gov.justice.framework-api:framework-api-core",
                 "uk.gov.justice.services:core",
                 "uk.gov.justice.services:messaging-jms",
