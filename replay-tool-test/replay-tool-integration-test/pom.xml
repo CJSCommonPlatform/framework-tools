@@ -123,12 +123,11 @@
                             </outputDirectory>
                         </artifactItem>
                         <artifactItem>
-                            <artifactId>framework-tools</artifactId>
                             <groupId>uk.gov.justice</groupId>
-                            <version>${project.version}</version>
                             <artifactId>framework-tools-replay</artifactId>
+                            <version>${project.version}</version>
                             <type>jar</type>
-                            <classifier>swarm</classifier>
+                            <classifier>thorntail</classifier>
                             <overWrite>true</overWrite>
                             <outputDirectory>${project.basedir}/target/test-classes
                             </outputDirectory>
