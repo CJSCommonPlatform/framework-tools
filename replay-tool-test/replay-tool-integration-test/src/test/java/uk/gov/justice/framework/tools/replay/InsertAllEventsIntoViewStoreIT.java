@@ -30,7 +30,7 @@ public class InsertAllEventsIntoViewStoreIT {
     private static final Boolean ENABLE_REMOTE_DEBUGGING_FOR_WILDFLY = false;
 
     private static final int WILDFLY_TIMEOUT_IN_SECONDS = 300;
-    private static final int NUMBER_OF_EVENTS_TO_INSERT = 10_000;
+    private static final int NUMBER_OF_EVENTS_TO_INSERT = 200;
 
     private final LiquibaseRunner liquibaseRunner = new LiquibaseRunner();
     private final DatasourceCreator datasourceCreator = new DatasourceCreator();
