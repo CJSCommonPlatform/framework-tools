@@ -4,6 +4,16 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [5.3.0] - 2019-05-07
+### Changed
+- common-bom -> 2.0.2
+- framework-api -> 4.0.0-M18
+- framework.version -> 6.0.0-M22
+- event-store -> 2.0.0-M22
+- test.utils.version -> 1.23.0
+
+
 ## [5.2.0] - 2019-05-02
 ### Changed
 - Upgraded Swarm to Thorntail
