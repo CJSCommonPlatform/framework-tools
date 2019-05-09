@@ -47,6 +47,7 @@ public class ArchiveLoader implements DeploymentProcessor {
                 "uk.gov.justice.event-store:event-buffer-core",
                 "uk.gov.justice.event-store:event-listener-interceptors",
                 "uk.gov.justice.event-store:event-subscription",
+                "uk.gov.justice.event-store:subscription-manager",
                 "uk.gov.justice.schema:catalog-core",
                 "uk.gov.justice.schema:schema-service",
                 "uk.gov.justice.utilities:utilities-core"
