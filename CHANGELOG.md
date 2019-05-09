@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [5.2.2] - 2019-05-09
+### Fixed 
+- Added subscription-manager to the list of excluded jars
+
 ## [5.2.1] - 2019-05-09
 ### Fixed 
 - Added event-subscription jar to list of jars to be excluded from Thorntail
