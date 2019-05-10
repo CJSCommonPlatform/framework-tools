@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [5.3.0] - 2019-05-10
+
+### Changed
+- Reverted to Swarm from Thorntail, due to weld issues when replaying
+
 ## [5.2.2] - 2019-05-09
 ### Fixed 
 - Added subscription-manager to the list of excluded jars
