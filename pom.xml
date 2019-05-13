@@ -12,7 +12,7 @@
 
     <artifactId>framework-tools</artifactId>
     <packaging>pom</packaging>
-    <version>5.3.1</version>
+    <version>5.4.0-SNAPSHOT</version>
 
     <properties>
         <cpp.repo.name>framework-tools</cpp.repo.name>
