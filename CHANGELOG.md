@@ -5,8 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
-## [5.3.0] - 2019-05-10
+## [5.3.1] - 2019-05-13
+### Changed
+- Update evet-store to 1.1.9
 
+## [5.3.0] - 2019-05-10
 ### Changed
 - Reverted to Swarm from Thorntail, due to weld issues when replaying
 
