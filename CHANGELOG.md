@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [5.3.3] - 2019-05-23
+### Fixed
+- Added event-publisher-jms, event-source and event-store-util to the list of excluded dependencies
+
 ## [5.3.2] - 2019-05-23
 ### Fixed
 - Added event-publisher-process to the list of excluded dependencies
